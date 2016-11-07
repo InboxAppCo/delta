@@ -1,14 +1,15 @@
 defmodule Delta.Plugin.Query do
 	defmacro __using__(_opts) do
-		use Delta.Base
 		alias Delta.Query
 
 		quote do
+			use Delta.Base
+
 			def query_path(path, opts \\ %{}) do
 				query_path("delta-master", path, opts)
 			end
 
-			def query_path(user, path, opts \\ %{}) do
+			def query_path(user, path, opts) do
 				case interceptors
 					|> Stream.map(&(&1.resolve_query(path, user, opts)))
 					|> Stream.filter(&(&1 !== nil))
@@ -23,7 +24,16 @@ defmodule Delta.Plugin.Query do
 			end
 
 			def query(input) do
-				Query.execute(input, read)
+				Query.execute("delta-master", input, read)
+			end
+
+			def query(user, input) do
+				input
+				|> Query.atoms
+				|> ParallelStream.map(fn {path, opts} ->
+					{path, query_path(user, path, opts)}
+				end)
+				|> Enum.reduce(%{}, fn {path, data}, collect -> Dynamic.put(collect, path, data) end)
 			end
 		end
 	end

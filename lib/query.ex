@@ -43,13 +43,4 @@ defmodule Delta.Query do
 		|> Kernel.get_in(path) || %{}
 	end
 
-	def execute(query, read) do
-		query
-		|> atoms
-		|> ParallelStream.map(fn {p, opts} ->
-			{p, path(read, p, opts)}
-		end)
-		|> Enum.reduce(%{}, fn {path, data}, collect -> Dynamic.put(collect, path, data) end)
-	end
-
 end
