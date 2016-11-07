@@ -1,6 +1,7 @@
 defmodule Delta.Plugin.Query do
 	defmacro __using__(_opts) do
 		alias Delta.Query
+		alias Delta.Dynamic
 
 		quote do
 			use Delta.Base
