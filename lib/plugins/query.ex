@@ -24,7 +24,7 @@ defmodule Delta.Plugin.Query do
 			end
 
 			def query(input) do
-				query("delta-master", input, read)
+				query("delta-master", input)
 			end
 
 			def query(user, input) do
