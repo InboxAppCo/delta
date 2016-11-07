@@ -32,6 +32,7 @@ defmodule Delta.Mixfile do
 		{:cqerl, github: "matehat/cqerl"},
 		{:cqex, "~> 0.2.0"},
 		{:poison, "~> 2.0"},
+		{:parallel_stream, "~> 1.0.5"},
 	]
   end
 end

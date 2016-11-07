@@ -2,10 +2,6 @@ defmodule Delta.Base do
 
 		defmacro __using__(_opts) do
 			quote do
-				use Delta.Plugin.Mutation
-				use Delta.Plugin.Query
-				use Delta.Plugin.Watch
-
 				# Module.register_attribute(__MODULE__, :interceptors, accumulate: true)
 				@before_compile Delta.Base
 
@@ -23,14 +19,17 @@ end
 
 defmodule Delta.Test do
 	use Delta.Base
+	use Delta.Plugin.Mutation
+	use Delta.Plugin.Query
+	use Delta.Plugin.Watch
+	use Delta.Plugin.Fact
 
 	@interceptors [
 		Delta.Test.Interceptor
 	]
-	@cassandra {Delta.Stores.Cassandra, %{}}
 
 	@writes [
-		@cassandra
+		{Delta.Stores.Cassandra, %{}}
 	]
 
 	@read {Delta.Stores.Cassandra, %{}}

@@ -2,6 +2,7 @@ defmodule Delta.Plugin.Mutation do
 	defmacro __using__(_opts) do
 
 		quote do
+			use Delta.Base
 			alias Delta.Mutation
 			alias Delta.Watch
 			@master "delta-master"
@@ -16,6 +17,7 @@ defmodule Delta.Plugin.Mutation do
 
 				prepared
 			end
+
 		end
 	end
 end

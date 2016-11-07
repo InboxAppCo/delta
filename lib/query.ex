@@ -31,4 +31,25 @@ defmodule Delta.Query do
 		|> Enum.count == 0
 	end
 
+	def path({store, args}, path, opts \\ %{}) do
+		opts = %{
+			min: nil,
+			max: nil,
+			limit: 0
+		} |> Map.merge(opts)
+		args
+		|> store.init
+		|> store.query_path(path, opts)
+		|> Kernel.get_in(path) || %{}
+	end
+
+	def execute(query, read) do
+		query
+		|> Query.atoms
+		|> ParallelStream.map(fn {p, opts} ->
+			{p, path(read, p, opts)}
+		end)
+		|> Enum.reduce(%{}, fn {path, data}, collect -> Dynamic.put(collect, path, data) end)
+	end
+
 end
