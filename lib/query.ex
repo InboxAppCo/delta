@@ -45,7 +45,7 @@ defmodule Delta.Query do
 
 	def execute(query, read) do
 		query
-		|> Query.atoms
+		|> atoms
 		|> ParallelStream.map(fn {p, opts} ->
 			{p, path(read, p, opts)}
 		end)

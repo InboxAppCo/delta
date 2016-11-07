@@ -1,4 +1,5 @@
 defmodule Delta.Fact do
+	import Logger
 	alias Delta.Mutation
 	alias Delta.Query
 
@@ -94,14 +95,14 @@ defmodule Delta.Fact do
 					|> Enum.into(%{})
 				Map.merge(collect, result)
 			[var_ref: s, string: p, string: o] ->
-				IO.puts("Filtering #{s} that have #{p} to #{o}")
+				Logger.info("Filtering #{s} that have #{p} to #{o}")
 			 	filtered =
 					parents(collect, s)
 					|> Enum.reduce(collect, fn {key, values}, collect ->
 						Map.put(collect, key, Enum.filter(values, fn item -> has_o(read, item, p, o) end) |> IO.inspect)
 					end)
 			[string: s, string: p, var_ref: o] ->
-				IO.puts("Filtering #{o} that have #{p} from #{s}")
+				Logger.info("Filtering #{o} that have #{p} from #{s}")
 			 	filtered =
 					parents(collect, s)
 					|> Enum.reduce(collect, fn {key, values}, collect ->
@@ -113,7 +114,7 @@ defmodule Delta.Fact do
 	end
 
 	defp sp_o(read, s, p) do
-		IO.puts("Fetching objects where #{p} from #{s}")
+		Logger.info("Fetching objects where #{p} from #{s}")
 		s = encode(s)
 		p = encode(p)
 		read
@@ -123,7 +124,7 @@ defmodule Delta.Fact do
 	end
 
 	defp op_s(read, o, p) do
-		IO.puts("Fetching subjects where #{p} to #{o}")
+		Logger.info("Fetching subjects where #{p} to #{o}")
 		o = encode(o)
 		p = encode(p)
 		read
@@ -137,14 +138,14 @@ defmodule Delta.Fact do
 		s = encode(s)
 		p = encode(p)
 		o = encode(o)
-		IO.puts("Verifying subject #{s} #{p} to #{o}")
+		Logger.info("Verifying subject #{s} #{p} to #{o}")
 		read
 		|> Query.path(["spo:#{s}", p, o])
 		|> is_integer
 	end
 
 	defp has_s(read, o, p, s) do
-		IO.puts("Verifying object #{o} #{p} from #{s}")
+		Logger.info("Verifying object #{o} #{p} from #{s}")
 		s = encode(s)
 		p = encode(p)
 		o = encode(o)
