@@ -16,13 +16,11 @@ defmodule Delta.Plugin.Query do
 					|> Stream.filter(&(&1 !== nil))
 					|> Stream.take(1)
 					|> Enum.to_list
-					|> IO.inspect
 				do
 					[result] -> result
 					[] ->
 						Query.path(read, path, opts)
 				end
-				Query.path(read, path, opts)
 			end
 
 			def query(input) do
