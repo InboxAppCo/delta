@@ -1,20 +1,47 @@
-defmodule Delta do
-  use Application
+defmodule Delta.Base do
 
-  # See http://elixir-lang.org/docs/stable/elixir/Application.html
-  # for more information on OTP Applications
-  def start(_type, _args) do
-    import Supervisor.Spec, warn: false
+		defmacro __using__(_opts) do
+			quote do
+				use Delta.Plugin.Mutation
+				use Delta.Plugin.Query
+				use Delta.Plugin.Watch
 
-    # Define workers and child supervisors to be supervised
-    children = [
-      # Starts a worker by calling: Delta.Worker.start_link(arg1, arg2, arg3)
-      # worker(Delta.Worker, [arg1, arg2, arg3]),
-    ]
+				# Module.register_attribute(__MODULE__, :interceptors, accumulate: true)
+				@before_compile Delta.Base
 
-    # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Delta.Supervisor]
-    Supervisor.start_link(children, opts)
-  end
+			end
+		end
+
+		defmacro __before_compile__(_env) do
+			quote do
+				def interceptors, do: @interceptors || []
+				def writes, do: @writes|| []
+				def read, do: @read|| []
+			end
+		end
+end
+
+defmodule Delta.Test do
+	use Delta.Base
+
+	@interceptors [
+		Delta.Test.Interceptor
+	]
+	@cassandra {Delta.Stores.Cassandra, %{}}
+
+	@writes [
+		@cassandra
+	]
+
+	@read {Delta.Stores.Cassandra, %{}}
+
+end
+
+defmodule Delta.Test.Interceptor do
+	use Delta.Interceptor
+
+	def intercept_write([], _user, _atom, mutation) do
+		:ok
+	end
+
 end
