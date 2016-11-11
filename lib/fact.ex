@@ -18,6 +18,7 @@ defmodule Delta.Fact do
 	end
 
 	def add(s, p, o, t) do
+		Logger.info("Adding fact #{s}-#{p}-#{o}")
 		s = encode(s)
 		p = encode(p)
 		o = encode(o)
