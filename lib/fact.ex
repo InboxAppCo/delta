@@ -25,8 +25,9 @@ defmodule Delta.Fact do
 
 		mutation =
 			Mutation.new
-			|> Mutation.merge(["spo:#{s}", p, o], t)
-			|> Mutation.merge(["ops:#{o}", p, s], t)
+			|> Mutation.merge(["spo", s, p, o], t)
+			|> Mutation.merge(["ops", o, p, s], t)
+			|> Mutation.merge(["pso", p, s, o], t)
 	end
 
 	def query(read,  [returns | steps]) do
@@ -119,7 +120,7 @@ defmodule Delta.Fact do
 		s = encode(s)
 		p = encode(p)
 		read
-		|> Query.path(["spo:#{s}", p])
+		|> Query.path(["spo", s, p])
 		|> Map.keys
 		|> Enum.map(&decode/1)
 	end
@@ -129,7 +130,7 @@ defmodule Delta.Fact do
 		o = encode(o)
 		p = encode(p)
 		read
-		|> Query.path(["ops:#{o}", p])
+		|> Query.path(["ops", o, p])
 		|> Map.keys
 		|> Enum.map(&decode/1)
 
@@ -141,7 +142,7 @@ defmodule Delta.Fact do
 		o = encode(o)
 		Logger.info("Verifying subject #{s} #{p} to #{o}")
 		read
-		|> Query.path(["spo:#{s}", p, o])
+		|> Query.path(["spo", s, p, o])
 		|> is_integer
 	end
 
@@ -151,7 +152,7 @@ defmodule Delta.Fact do
 		p = encode(p)
 		o = encode(o)
 		read
-		|> Query.path(["ops:#{o}", p, s])
+		|> Query.path(["ops", o, p, s])
 		|> is_integer
 	end
 
