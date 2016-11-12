@@ -27,7 +27,6 @@ defmodule Delta.Fact do
 			Mutation.new
 			|> Mutation.merge(["spo:#{s}", p, o], t)
 			|> Mutation.merge(["ops:#{o}", p, s], t)
-			|> Mutation.merge(["pso:#{p}", s, o], t)
 	end
 
 	def query(read,  [returns | steps]) do
