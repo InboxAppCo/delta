@@ -5,6 +5,9 @@ defmodule Delta.Base do
 				Module.register_attribute(__MODULE__, :interceptors, accumulate: false)
 				Module.register_attribute(__MODULE__, :read, accumulate: false)
 				Module.register_attribute(__MODULE__, :writes, accumulate: false)
+				@interceptors []
+				@writes []
+				@read []
 				@before_compile Delta.Base
 			end
 		end
