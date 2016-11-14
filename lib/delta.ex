@@ -4,15 +4,14 @@ defmodule Delta.Base do
 			quote do
 				# Module.register_attribute(__MODULE__, :interceptors, accumulate: true)
 				@before_compile Delta.Base
-
 			end
 		end
 
 		defmacro __before_compile__(_env) do
 			quote do
 				def interceptors, do: @interceptors || []
-				def writes, do: @writes|| []
-				def read, do: @read|| []
+				def writes, do: @writes || []
+				def read, do: @read || []
 			end
 		end
 end
