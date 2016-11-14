@@ -3,6 +3,8 @@ defmodule Delta.Base do
 		defmacro __using__(_opts) do
 			quote do
 				Module.register_attribute(__MODULE__, :interceptors, accumulate: false)
+				Module.register_attribute(__MODULE__, :read, accumulate: false)
+				Module.register_attribute(__MODULE__, :writes, accumulate: false)
 				@before_compile Delta.Base
 			end
 		end
