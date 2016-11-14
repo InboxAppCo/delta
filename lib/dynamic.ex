@@ -17,10 +17,6 @@ defmodule Delta.Dynamic do
 		Kernel.get_in(input, path)
 	end
 
-	def get(_, path) do
-		nil
-	end
-
 	def delete(input, [h]) do
 		Map.delete(input, h)
 	end

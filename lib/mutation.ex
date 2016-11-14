@@ -1,6 +1,5 @@
 defmodule Delta.Mutation do
 	alias Delta.Dynamic
-	alias Delta.Watch
 
 	def new(merge \\ %{}, delete \\ %{}) do
 		%{
@@ -42,15 +41,7 @@ defmodule Delta.Mutation do
 	def inflate({path, body}) do
 		new
 		|> Dynamic.put([:merge | path], Map.get(body, :merge) || %{})
-		|> Dynamic.put([:merge | path], Map.get(body, :merge) || %{})
-	end
-
-	defp inflate(input, path, nil) do
-		input
-	end
-
-	defp inflate(input, path, value) do
-		Dynamic.put(input, path, value)
+		|> Dynamic.put([:delete | path], Map.get(body, :delete) || %{})
 	end
 
 	def prepare(mutation, interceptors, function, user) do
@@ -67,7 +58,7 @@ defmodule Delta.Mutation do
 					|> prepare(interceptors, function, user)
 					|> combine(result)
 				:ok -> collect
-				result = %{merge: merge, delete: delete} -> result
+				result = %{merge: _merge, delete: _delete} -> result
 			end
 		end)
 	end
@@ -76,7 +67,7 @@ defmodule Delta.Mutation do
 		deleted =
 			mutation.delete
 			|> Dynamic.flatten
-			|> Enum.reduce(input, fn {path, value}, collect ->
+			|> Enum.reduce(input, fn {path, _value}, collect ->
 				Dynamic.delete(collect, Enum.reverse(path))
 			end)
 		mutation.merge

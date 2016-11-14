@@ -15,7 +15,7 @@ defmodule Delta.Watch do
 		|> Enum.each(&notify_atom/1)
 	end
 
-	defp notify_atom(atom = {path, body}) do
+	defp notify_atom(atom = {path, _body}) do
 		mutation = atom |> Mutation.inflate
 		:syn.publish(name(path), {:mutation, mutation})
 	end

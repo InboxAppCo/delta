@@ -16,7 +16,7 @@ defmodule Delta.Base do
 		end
 end
 
-defmodule Delta.Test do
+defmodule Delta.Sample do
 	use Delta.Base
 	use Delta.Plugin.Mutation
 	use Delta.Plugin.Query
@@ -24,7 +24,7 @@ defmodule Delta.Test do
 	use Delta.Plugin.Fact
 
 	@interceptors [
-		Delta.Test.Interceptor
+		Delta.Sample.Interceptor
 	]
 
 	@writes [
@@ -35,10 +35,10 @@ defmodule Delta.Test do
 
 end
 
-defmodule Delta.Test.Interceptor do
+defmodule Delta.Sample.Interceptor do
 	use Delta.Interceptor
 
-	def intercept_write([], _user, _atom, mutation) do
+	def intercept_write([], _user, _atom, _mutation) do
 		:ok
 	end
 

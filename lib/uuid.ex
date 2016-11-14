@@ -39,7 +39,7 @@ defmodule Delta.UUID do
 		generate(div(time, @base), pool, count - 1, collect)
 	end
 
-	def generate(time, pool, count, collect) do
+	def generate(_time, _pool, _count, collect) do
 		collect
 	end
 end

@@ -1,5 +1,5 @@
 defmodule Delta.Fact do
-	import Logger
+	require Logger
 	alias Delta.Mutation
 	alias Delta.Query
 
@@ -23,10 +23,9 @@ defmodule Delta.Fact do
 		p = encode(p)
 		o = encode(o)
 
-		mutation =
-			Mutation.new
-			|> Mutation.merge(["spo:#{s}", p, o], t)
-			|> Mutation.merge(["ops:#{o}", p, s], t)
+		Mutation.new
+		|> Mutation.merge(["spo:#{s}", p, o], t)
+		|> Mutation.merge(["ops:#{o}", p, s], t)
 	end
 
 	def query(read,  [returns | steps]) do

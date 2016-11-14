@@ -1,5 +1,5 @@
 defmodule Delta.Stores.Cassandra do
-	@behaviour Delta.Store
+	# @behaviour Delta.Store
 	alias CQEx.Query
 	alias CQEx.Client
 	alias Delta.Dynamic
@@ -31,7 +31,7 @@ defmodule Delta.Stores.Cassandra do
 		}
 	end
 
-	def delete(state, path) do
+	def delete(state, _path) do
 		state
 	end
 
@@ -42,9 +42,10 @@ defmodule Delta.Stores.Cassandra do
 			|> Query.call!(query)
 		end)
 		|> Enum.to_list
+		state
 	end
 
-	def query_path(state, path, opts) do
+	def query_path(_state, path, opts) do
 		count = Enum.count(path)
 		{shard, min, max} = args(path, opts)
 		query =
@@ -62,7 +63,7 @@ defmodule Delta.Stores.Cassandra do
 		Client.new!
 		|> Query.call!(query)
 		|> Stream.map(fn [field: field, value: value] -> {String.split(shard, ".") ++ String.split(field, "."), value} end)
-		|> Stream.chunk_by(fn {path, value} -> Enum.at(path, count) end)
+		|> Stream.chunk_by(fn {path, _value} -> Enum.at(path, count) end)
 		|> Stream.take(
 			case opts.limit do
 				0 -> 10000
