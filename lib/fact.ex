@@ -3,15 +3,20 @@ defmodule Delta.Fact do
 	alias Delta.Mutation
 	alias Delta.Query
 
+
 	defp encode(input) when is_binary(input) do
 		input
 		|> String.replace(".", "|")
 	end
 
+	defp encode(input), do: input
+
 	defp decode(input) when is_binary(input) do
 		input
 		|> String.replace("|", ".")
 	end
+
+	defp decode(input), do: input
 
 	def add(s, p, o) do
 		add(s, p, o, :os.system_time(:milli_seconds))
