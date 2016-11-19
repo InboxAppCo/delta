@@ -11,11 +11,12 @@ defmodule Delta.Fact.Node do
 	def init([read, key, pred]) do
 
 		{:ok, %{
-			key: key,
+			key: {key, pred},
 			data:
 				Map.new
 				|> watch(read, ["spo:#{key}", pred])
 				|> watch(read, ["ops:#{key}", pred])
+				|> IO.inspect
 		}}
 	end
 
@@ -46,7 +47,7 @@ defmodule Delta.Fact.Node do
 	end
 
 	def name(key, pred) do
-		{__MODULE__, key}
+		{__MODULE__, key, pred}
 	end
 
 	def tuple(key, pred) do

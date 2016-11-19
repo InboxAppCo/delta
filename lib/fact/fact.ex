@@ -125,6 +125,7 @@ defmodule Delta.Fact do
 		read
 		|> Delta.Fact.Node.objects(s, p)
 		|> Map.keys
+		|> IO.inspect
 		|> Enum.map(&decode/1)
 	end
 
