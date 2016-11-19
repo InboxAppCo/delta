@@ -32,11 +32,20 @@ defmodule Delta.Sample do
 		Delta.Sample.Interceptor
 	]
 
+	@read {Delta.Stores.Cassandra, %{}}
+
 	@writes [
 		{Delta.Stores.Cassandra, %{}}
 	]
 
-	@read {Delta.Stores.Cassandra, %{}}
+	def sample_fact do
+		query_fact([
+			[:url],
+			[:url, "og:tag", "obama"]
+
+		])
+	end
+
 
 end
 

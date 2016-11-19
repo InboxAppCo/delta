@@ -33,7 +33,7 @@ defmodule Delta.Fact do
 		|> Mutation.merge(["ops:#{o}", p, s], t)
 	end
 
-	def query(read,  [returns | steps]) do
+	def query(read, [returns | steps]) do
 		{lexed, _} =
 			steps
 			|> Enum.map_reduce(MapSet.new, &lex/2)
@@ -123,7 +123,7 @@ defmodule Delta.Fact do
 		s = encode(s)
 		p = encode(p)
 		read
-		|> Query.path(["spo:#{s}", p])
+		|> Delta.Fact.Node.objects(s, p)
 		|> Map.keys
 		|> Enum.map(&decode/1)
 	end
@@ -133,20 +133,19 @@ defmodule Delta.Fact do
 		o = encode(o)
 		p = encode(p)
 		read
-		|> Query.path(["ops:#{o}", p])
+		|> Delta.Fact.Node.subjects(o, p)
 		|> Map.keys
 		|> Enum.map(&decode/1)
 
 	end
 
 	defp has_o(read, s, p, o) do
+		Logger.info("Verifying subject #{s} #{p} to #{o}")
 		s = encode(s)
 		p = encode(p)
 		o = encode(o)
-		Logger.info("Verifying subject #{s} #{p} to #{o}")
 		read
-		|> Query.path(["spo:#{s}", p, o])
-		|> is_integer
+		|> Delta.Fact.Node.has_object(s, p, o)
 	end
 
 	defp has_s(read, o, p, s) do
@@ -155,8 +154,7 @@ defmodule Delta.Fact do
 		p = encode(p)
 		o = encode(o)
 		read
-		|> Query.path(["ops:#{o}", p, s])
-		|> is_integer
+		|> Delta.Fact.Node.has_subject(o, p, s)
 	end
 
 end
