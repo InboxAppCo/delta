@@ -42,7 +42,6 @@ defmodule Delta.Fact do
 			|> Enum.reduce(%{}, fn step, collect -> execute(read, step, collect) end)
 		[target | rest] = Enum.reverse(returns)
 		parents(results, target)
-		|> IO.inspect
 		|> Enum.flat_map(fn {{_, params}, values} ->
 			Enum.map(values, fn value ->
 				Enum.reverse([value | Enum.map(rest, &(Map.get(params, &1) || Map.get(results, {&1, params}) |> first ))])
