@@ -35,7 +35,7 @@ defmodule Delta.Fact.Node do
 	end
 
 	def handle_call({:query_path, path}, _from, state = %{data: data}) do
-		{:reply, Dynamic.get(data, path), state}
+		{:reply, Dynamic.get(data, path) || %{}, state}
 	end
 
 	def handle_info({:mutation, mutation}, state = %{data: data}) do

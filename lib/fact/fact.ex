@@ -104,14 +104,14 @@ defmodule Delta.Fact do
 			 	filtered =
 					parents(collect, s)
 					|> Enum.reduce(collect, fn {key, values}, collect ->
-						Map.put(collect, key, Enum.filter(values, fn item -> has_o(read, item, p, o) end) |> IO.inspect)
+						Map.put(collect, key, Enum.filter(values, fn item -> has_o(read, item, p, o) end))
 					end)
 			[string: s, string: p, var_ref: o] ->
 				Logger.info("Filtering #{o} that have #{p} from #{s}")
 			 	filtered =
 					parents(collect, s)
 					|> Enum.reduce(collect, fn {key, values}, collect ->
-						Map.put(collect, key, Enum.filter(values, fn item -> has_s(read, item, p, s) end) |> IO.inspect)
+						Map.put(collect, key, Enum.filter(values, fn item -> has_s(read, item, p, s) end))
 					end)
 
 			true -> collect
