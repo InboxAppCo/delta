@@ -40,11 +40,12 @@ defmodule Delta.Sample do
 
 	def sample_fact do
 		query_fact([
-			[:package],
+			[:from, :package],
 			[:account, "user:key", "0NeFW0nMZdLlqp80B2HW"],
 			[:account, "context:type", "contextio"],
 			[:account, "email:key", :email],
 			[:package, "package:email", :email],
+			[:email, "email:from", :from],
 
 		])
 	end

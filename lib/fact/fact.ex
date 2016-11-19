@@ -42,11 +42,19 @@ defmodule Delta.Fact do
 			|> Enum.reduce(%{}, fn step, collect -> execute(read, step, collect) end)
 		[target | rest] = Enum.reverse(returns)
 		parents(results, target)
+		|> IO.inspect
 		|> Enum.flat_map(fn {{_, params}, values} ->
 			Enum.map(values, fn value ->
-				Enum.reverse([value | Enum.map(rest, &Map.get(params, &1))])
+				Enum.reverse([value | Enum.map(rest, &(Map.get(params, &1) || Map.get(results, {&1, params}) |> first ))])
 			end)
 		end)
+	end
+
+	defp first(input) do
+		case input do
+			nil -> nil
+			_ -> List.first(input)
+		end
 	end
 
 	def lex(input, vars) do
@@ -82,9 +90,12 @@ defmodule Delta.Fact do
 				result =
 					parents(collect, s)
 					|> Enum.flat_map(fn {{key, params}, value} ->
-						Enum.map(value, fn x ->
-							{{o, Map.put(params, key, x)}, sp_o(read, x, p)}
-						end)
+						results =
+							ParallelStream.map(value, fn x ->
+								{{o, Map.put(params, key, x)}, sp_o(read, x, p)}
+							end)
+							|> Enum.filter(fn {_, values} -> values !== [] end)
+						[ {{key, params}, results |> Enum.map(fn {{_, trimmed }, _ } -> Map.get(trimmed, key) end)} | results ]
 					end)
 					|> Enum.into(%{})
 				Map.merge(collect, result)
@@ -93,9 +104,12 @@ defmodule Delta.Fact do
 				result =
 					parents(collect, o)
 					|> Enum.flat_map(fn {{key, params}, value} ->
-						Enum.map(value, fn x ->
-							{{s, Map.put(params, key, x)}, op_s(read, x, p)}
-						end)
+						results =
+							ParallelStream.map(value, fn x ->
+								{{s, Map.put(params, key, x)}, op_s(read, x, p)}
+							end)
+							|> Enum.filter(fn {_, values} -> values !== [] end)
+						[ {{key, params}, results |> Enum.map(fn {{_, trimmed }, _ } -> Map.get(trimmed, key) end)} | results ]
 					end)
 					|> Enum.into(%{})
 				Map.merge(collect, result)
@@ -104,14 +118,14 @@ defmodule Delta.Fact do
 			 	filtered =
 					parents(collect, s)
 					|> Enum.reduce(collect, fn {key, values}, collect ->
-						Map.put(collect, key, Enum.filter(values, fn item -> has_o(read, item, p, o) end))
+						Map.put(collect, key, ParallelStream.filter(values, fn item -> has_o(read, item, p, o) end))
 					end)
 			[string: s, string: p, var_ref: o] ->
 				Logger.info("Filtering #{o} that have #{p} from #{s}")
 			 	filtered =
 					parents(collect, s)
 					|> Enum.reduce(collect, fn {key, values}, collect ->
-						Map.put(collect, key, Enum.filter(values, fn item -> has_s(read, item, p, s) end))
+						Map.put(collect, key, ParallelStream.filter(values, fn item -> has_s(read, item, p, s) end))
 					end)
 
 			true -> collect
@@ -125,7 +139,6 @@ defmodule Delta.Fact do
 		read
 		|> Delta.Fact.Node.objects(s, p)
 		|> Map.keys
-		|> IO.inspect
 		|> Enum.map(&decode/1)
 	end
 

@@ -16,7 +16,6 @@ defmodule Delta.Fact.Node do
 				Map.new
 				|> watch(read, ["spo:#{key}", pred])
 				|> watch(read, ["ops:#{key}", pred])
-				|> IO.inspect
 		}}
 	end
 
