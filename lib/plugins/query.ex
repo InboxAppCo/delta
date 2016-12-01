@@ -35,8 +35,8 @@ defmodule Delta.Plugin.Query do
 				end)
 				|> Enum.reduce(%{}, fn {path, data}, collect ->
 					collect
-					|> Dynamic.put([:merge, path], data)
-					|> Dynamic.put([:delete, path], 1)
+					|> Dynamic.put([:merge | path], data)
+					|> Dynamic.put([:delete | path], 1)
 				end)
 			end
 		end
