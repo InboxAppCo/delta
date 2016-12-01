@@ -33,7 +33,11 @@ defmodule Delta.Plugin.Query do
 				|> ParallelStream.map(fn {path, opts} ->
 					{path, query_path(user, path, opts)}
 				end)
-				|> Enum.reduce(%{}, fn {path, data}, collect -> Dynamic.put(collect, path, data) end)
+				|> Enum.reduce(%{}, fn {path, data}, collect ->
+					collect
+					|> Dynamic.put([:merge, path], data)
+					|> Dynamic.put([:delete, path], 1)
+				end)
 			end
 		end
 	end
