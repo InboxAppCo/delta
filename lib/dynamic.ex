@@ -54,7 +54,7 @@ defmodule Delta.Dynamic do
 				value == %{} -> []
 				is_map(value) ->
 					flatten(value, full)
-				_ -> [{full, value}]
+				true -> [{full, value}]
 			end
 		end)
 	end
