@@ -4,7 +4,7 @@ defmodule Delta.Dynamic do
 		Map.put(input, h, value)
 	end
 
-	def put(input, [h | t], value) do
+	def put(input, path = [h | t], value) do
 		child =
 			case Map.get(input, h) do
 				match = %{} -> match
@@ -26,12 +26,11 @@ defmodule Delta.Dynamic do
 	end
 
 	def delete(input, [h | t]) do
-		child =
-			case Map.get(input, h) do
-				match = %{} -> match
-				_ -> %{}
-			end
-		Map.put(input, h, delete(child, t))
+		case Map.get(input, h) do
+			child when is_map(child) ->
+				Map.put(input, h, delete(child, t))
+			_ -> input
+		end
 	end
 
 	def combine(left, right) do
