@@ -31,16 +31,20 @@ defmodule Delta.Query do
 		|> Enum.count == 0
 	end
 
-	def path({store, args}, path, opts \\ %{}) do
-		opts = %{
-			min: nil,
-			max: nil,
-			limit: 0
-		} |> Map.merge(opts)
-		args
-		|> store.init
-		|> store.query_path(path, opts)
-		|> Kernel.get_in(path) || %{}
-	end
-
+		def path({store, args}, path, opts \\ %{}) do
+			opts = %{
+				min: nil,
+				max: nil,
+				limit: 0
+			} |> Map.merge(opts)
+			case args
+				|> store.init
+				|> store.query_path(path, opts)
+				|> Kernel.get_in(path) do
+				nil ->
+					IO.puts("Nil for #{inspect(path)}")
+					%{}
+				result -> result
+			end
+		end
 end
