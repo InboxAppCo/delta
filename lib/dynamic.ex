@@ -52,6 +52,7 @@ defmodule Delta.Dynamic do
 			full = [key | path]
 			case value do
 				%{} ->
+					IO.inspect(value)
 					IO.puts("HIT")
 					[]
 				value when is_map(value) ->
