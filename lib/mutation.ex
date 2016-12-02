@@ -68,6 +68,7 @@ defmodule Delta.Mutation do
 			mutation.delete
 			|> Dynamic.flatten
 			|> Enum.reduce(input, fn {path, _value}, collect ->
+				IO.puts("Deleting #{inspect(path)}")
 				Dynamic.delete(collect, Enum.reverse(path))
 			end)
 		mutation.merge
