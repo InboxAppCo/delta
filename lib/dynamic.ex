@@ -13,6 +13,10 @@ defmodule Delta.Dynamic do
 		Map.put(input, h, put(child, t, value))
 	end
 
+	def get(input, []) do
+		input
+	end
+
 	def get(input, path) do
 		Kernel.get_in(input, path)
 	end
