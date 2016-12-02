@@ -51,8 +51,12 @@ defmodule Delta.Dynamic do
 		|> Enum.flat_map(fn {key, value} ->
 			full = [key | path]
 			case value do
-				%{} -> []
-				value when is_map(value) -> flatten(value, full)
+				%{} ->
+					IO.puts("HIT")
+					[]
+				value when is_map(value) ->
+					IO.puts("HIT 2")
+					flatten(value, full)
 				_ -> [{full, value}]
 			end
 		end)
