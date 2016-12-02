@@ -41,9 +41,7 @@ defmodule Delta.Query do
 				|> store.init
 				|> store.query_path(path, opts)
 				|> Kernel.get_in(path) do
-				nil ->
-					IO.puts("Nil for #{inspect(path)}")
-					%{}
+				nil -> %{}
 				result -> result
 			end
 		end
