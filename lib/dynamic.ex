@@ -1,5 +1,13 @@
 defmodule Delta.Dynamic do
 
+	def nil(nil, default) do
+		default
+	end
+
+	def nil(input, _default) do
+		input
+	end
+
 	def put(input, [h], value) do
 		Map.put(input, h, value)
 	end
