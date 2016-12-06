@@ -1,10 +1,10 @@
 defmodule Delta.Dynamic do
 
-	def nil(nil, default) do
+	def default(nil, default) do
 		default
 	end
 
-	def nil(input, _default) do
+	def default(input, _default) do
 		input
 	end
 
