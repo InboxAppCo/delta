@@ -61,7 +61,7 @@ defmodule Delta.Dynamic do
 				value == %{} -> []
 				is_map(value) ->
 					flatten(value, full)
-				true -> [{full, value}]
+				true -> [{Enum.reverse(full), value}]
 			end
 		end)
 	end

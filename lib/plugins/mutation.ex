@@ -15,6 +15,9 @@ defmodule Delta.Plugin.Mutation do
 				prepared
 				|> Watch.notify
 
+				writes
+				|> Enum.each(fn store -> Mutation.write(prepared, store) end)
+
 				prepared
 			end
 

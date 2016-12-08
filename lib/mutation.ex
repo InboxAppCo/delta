@@ -27,7 +27,7 @@ defmodule Delta.Mutation do
 		input
 		|> Dynamic.atoms
 		|> Enum.reduce(%{}, fn {path, value}, collect ->
-			Dynamic.put(collect, [Enum.reverse(path), type], value)
+			Dynamic.put(collect, [path, type], value)
 		end)
 	end
 
@@ -68,30 +68,29 @@ defmodule Delta.Mutation do
 			mutation.delete
 			|> Dynamic.flatten
 			|> Enum.reduce(input, fn {path, _value}, collect ->
-				Dynamic.delete(collect, Enum.reverse(path))
+				Dynamic.delete(collect, path)
 			end)
 		mutation.merge
 		|> Dynamic.flatten
 		|> Enum.reduce(deleted, fn {path, value}, collect ->
-			Dynamic.put(collect, Enum.reverse(path), value)
+			Dynamic.put(collect, path, value)
 		end)
 	end
 
 	def write(mutation, {store, args}) do
+		IO.inspect(mutation)
 		store.init(args)
-		|> write_delete(store, mutation.delete)
-		|> store.execute
+		|> store.delete(Dynamic.flatten(mutation.delete))
 
 		store.init(args)
-		|> write_merge(store, mutation.merge)
-		|> store.execute
+		|> store.merge(Dynamic.flatten(mutation.merge) |> IO.inspect)
 	end
 
 	defp write_merge(transaction, store, merge) do
 		merge
 		|> Dynamic.flatten
 		|> Enum.reduce(transaction, fn {path, value}, collect ->
-			store.merge(collect, Enum.reverse(path), value)
+			store.merge(collect, path, value)
 		end)
 	end
 
@@ -99,7 +98,7 @@ defmodule Delta.Mutation do
 		delete
 		|> Dynamic.flatten
 		|> Enum.reduce(transaction, fn {path, _}, collect ->
-			store.delete(collect, Enum.reverse(path))
+			store.delete(collect, path)
 		end)
 	end
 
