@@ -10,11 +10,10 @@ defmodule Delta.Stores.Postgres do
 				{
 					index + 2,
 					statement <> "($#{index}, $#{index + 1})",
-					[path, Poison.encode!(value) | params],
+					[Enum.join(path, "."), Poison.encode!(value) | params],
 				}
 		end)
-		IO.inspect(statement)
-		IO.inspect(params)
+		|> IO.inspect
 		state
 		|> Postgrex.query!("INSERT INTO data(path, value) VALUES #{statement} ON CONFLICT (path) DO UPDATE SET value = excluded.value", params)
 	end

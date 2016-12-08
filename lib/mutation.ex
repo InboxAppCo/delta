@@ -78,12 +78,11 @@ defmodule Delta.Mutation do
 	end
 
 	def write(mutation, {store, args}) do
-		IO.inspect(mutation)
 		store.init(args)
 		|> store.delete(Dynamic.flatten(mutation.delete))
 
 		store.init(args)
-		|> store.merge(Dynamic.flatten(mutation.merge) |> IO.inspect)
+		|> store.merge(Dynamic.flatten(mutation.merge))
 	end
 
 	defp write_merge(transaction, store, merge) do
