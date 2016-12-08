@@ -18,9 +18,9 @@ defmodule Delta.Stores.Postgres do
 	end
 
 	def delete(state, atoms) do
-		IO.inspect(atoms)
 		atoms
 		|> ParallelStream.each(fn {path, _} ->
+			IO.inspect(path)
 			{min, max} = Delta.Store.range(path, %{min: nil, max: nil}) |> IO.inspect
 			state
 			|> Postgrex.query!("DELETE FROM data WHERE path >= $1 AND path < $2", [min, max])
