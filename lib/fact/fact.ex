@@ -1,7 +1,6 @@
 defmodule Delta.Fact do
 	require Logger
 	alias Delta.Mutation
-	alias Delta.Query
 
 
 	defp encode(input) when is_binary(input) do

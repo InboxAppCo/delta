@@ -12,7 +12,7 @@ defmodule Delta.Dynamic do
 		Map.put(input, h, value)
 	end
 
-	def put(input, path = [h | t], value) do
+	def put(input, [h | t], value) do
 		child =
 			case Map.get(input, h) do
 				match = %{} -> match

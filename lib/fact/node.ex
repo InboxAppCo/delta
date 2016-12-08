@@ -55,34 +55,35 @@ defmodule Delta.Fact.Node do
 	end
 
 	def whereis(key, pred) do
-		name(key, pred)
+		key
+		|> name(pred)
 		|> :syn.find_by_key
 	end
 
 	def subjects(read, o, p) do
-		get(read, o, p)
+		read
+		|> get(o, p)
 		|> GenServer.call({:query_path, ["ops:#{o}", p]})
 	end
 
 	def objects(read, s, p) do
-		get(read, s, p)
+		read
+		|> get(s, p)
 		|> GenServer.call({:query_path, ["spo:#{s}", p]})
 	end
 
 	def has_subject(read, o, p, s) do
-		get(read, o, p)
+		read
+		|> get(o, p)
 		|> GenServer.call({:query_path, ["ops:#{o}", p, s]})
 		|> is_integer
 	end
 
 	def has_object(read, s, p, o) do
-		get(read, s, p)
+		read
+		|> get(s, p)
 		|> GenServer.call({:query_path, ["spo:#{s}", p, o]})
 		|> is_integer
 	end
 
-end
-
-defmodule Delta.Fact.Supervisor do
-	use Supervisor
 end

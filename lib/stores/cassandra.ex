@@ -2,17 +2,14 @@ defmodule Delta.Stores.Cassandra do
 	# @behaviour Delta.Store
 	alias CQEx.Query
 	alias CQEx.Client
-	alias Delta.Dynamic
 
 	def init(_) do
-		%{
-			batch: [],
-		}
+		{}
 	end
 
-	def merge(state, atoms) do
+	def merge(_state, atoms) do
 		atoms
-		|> Enum.each(fn {[first | [ second | rest ] ], value} ->
+		|> Enum.each(fn {[first | [second | rest]], value} ->
 			shard = shard(first, second)
 			field = Enum.join(rest, ".")
 			json = Poison.encode!(value)
@@ -32,8 +29,7 @@ defmodule Delta.Stores.Cassandra do
 		end)
 	end
 
-	def delete(state, _path) do
-		state
+	def delete(_state, _path) do
 	end
 
 	def query_path(_state, path, opts) do
@@ -56,7 +52,7 @@ defmodule Delta.Stores.Cassandra do
 		|> Delta.Store.inflate(path, opts)
 	end
 
-	defp range([first | [ second | rest ] ], opts) do
+	defp range([first | [second | rest]], opts) do
 		shard = shard(first, second)
 		{min, max} = Delta.Store.range(rest, opts)
 		{shard, min, max}

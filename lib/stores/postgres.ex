@@ -3,7 +3,7 @@ defmodule Delta.Stores.Postgres do
 		pid
 	end
 
-	def merge(state, []) do
+	def merge(_state, []) do
 
 	end
 
@@ -21,7 +21,7 @@ defmodule Delta.Stores.Postgres do
 		|> Postgrex.query!("INSERT INTO data(path, value) VALUES #{statement} ON CONFLICT (path) DO UPDATE SET value = excluded.value", params)
 	end
 
-	def delete(state, []) do
+	def delete(_state, []) do
 
 	end
 
@@ -47,9 +47,6 @@ defmodule Delta.Stores.Postgres do
 		|> Map.get(:rows)
 		|> Stream.map(fn [path, value] -> {String.split(path, "."), value} end)
 		|> Delta.Store.inflate(path, opts)
-	end
-
-	def execute(state) do
 	end
 
 end

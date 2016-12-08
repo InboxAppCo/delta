@@ -78,28 +78,13 @@ defmodule Delta.Mutation do
 	end
 
 	def write(mutation, {store, args}) do
-		store.init(args)
+		args
+		|> store.init
 		|> store.delete(Dynamic.flatten(mutation.delete))
 
-		store.init(args)
+		args
+		|> store.init
 		|> store.merge(Dynamic.flatten(mutation.merge))
 	end
-
-	defp write_merge(transaction, store, merge) do
-		merge
-		|> Dynamic.flatten
-		|> Enum.reduce(transaction, fn {path, value}, collect ->
-			store.merge(collect, path, value)
-		end)
-	end
-
-	defp write_delete(transaction, store, delete) do
-		delete
-		|> Dynamic.flatten
-		|> Enum.reduce(transaction, fn {path, _}, collect ->
-			store.delete(collect, path)
-		end)
-	end
-
 
 end
