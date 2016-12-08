@@ -3,6 +3,10 @@ defmodule Delta.Stores.Postgres do
 		pid
 	end
 
+	def merge(state, []) do
+
+	end
+
 	def merge(state, atoms) do
 		{_, statement, params} =
 			atoms
@@ -15,6 +19,10 @@ defmodule Delta.Stores.Postgres do
 		end)
 		state
 		|> Postgrex.query!("INSERT INTO data(path, value) VALUES #{statement} ON CONFLICT (path) DO UPDATE SET value = excluded.value", params)
+	end
+
+	def delete(state, []) do
+
 	end
 
 	def delete(state, atoms) do
