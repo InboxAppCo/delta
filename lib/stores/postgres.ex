@@ -18,6 +18,7 @@ defmodule Delta.Stores.Postgres do
 	end
 
 	def delete(state, atoms) do
+		IO.inspect(atoms)
 		atoms
 		|> ParallelStream.each(fn {path, _} ->
 			{min, max} = Delta.Store.range(path, %{min: nil, max: nil}) |> IO.inspect
