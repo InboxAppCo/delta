@@ -46,8 +46,7 @@ defmodule Delta.Stores.Cassandra do
 	end
 
 	def query_path(_state, path, opts) do
-		count = Enum.count(path)
-		{shard, min, max} = args(path, opts)
+		{shard, min, max} = range(path, opts)
 		query =
 			Query.new
 			|> Query.statement(~s(
@@ -63,31 +62,12 @@ defmodule Delta.Stores.Cassandra do
 		Client.new!
 		|> Query.call!(query)
 		|> Stream.map(fn [field: field, value: value] -> {String.split(shard, ".") ++ String.split(field, "."), value} end)
-		|> Stream.chunk_by(fn {path, _value} -> Enum.at(path, count) end)
-		|> Stream.take(
-			case opts.limit do
-				0 -> 10000
-				_ -> count
-			end
-		)
-		|> Stream.flat_map(fn x -> x end)
-		|> Enum.reduce(%{}, fn {path, value}, collect ->
-			Dynamic.put(collect, path, Poison.decode!(value))
-		end)
+		|> Delta.Store.inflate(path, opts)
 	end
 
-	defp args([first | [ second | rest ] ], opts) do
+	defp range([first | [ second | rest ] ], opts) do
 		shard = shard(first, second)
-		min =
-			case opts.min do
-				nil -> Enum.join(rest, ".")
-				min -> Enum.join(rest ++ [min], ".")
-			end
-		max =
-			case opts.max do
-				nil -> prefix(min)
-				max -> Enum.join(rest ++ [max], ".")
-			end
+		{min, max} = Delta.Store.range(rest)
 		{shard, min, max}
 	end
 
