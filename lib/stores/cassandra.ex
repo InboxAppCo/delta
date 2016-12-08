@@ -10,11 +10,12 @@ defmodule Delta.Stores.Cassandra do
 		}
 	end
 
-	def merge(state = %{batch: batch}, [first | [ second | rest ] ], value) do
-		shard = shard(first, second)
-		field = Enum.join(rest, ".")
-		json = Poison.encode!(value)
-		query =
+	def merge(state, atoms) do
+		atoms
+		|> Enum.each(fn {[first | [ second | rest ] ], value} ->
+			shard = shard(first, second)
+			field = Enum.join(rest, ".")
+			json = Poison.encode!(value)
 			Query.new
 			|> Query.statement(~s(
 				UPDATE data.kv SET
@@ -25,23 +26,13 @@ defmodule Delta.Stores.Cassandra do
 			|> Query.put(:value, json)
 			|> Query.put(:shard, shard)
 			|> Query.put(:field, field)
-		%{
-			state |
-			batch: [query | batch]
-		}
+		end)
+		|> ParallelStream.map(fn query ->
+			Client.new! |> Query.call!(query)
+		end)
 	end
 
 	def delete(state, _path) do
-		state
-	end
-
-	def execute(state = %{batch: batch}) do
-		batch
-		|> ParallelStream.map(fn query ->
-			Client.new!
-			|> Query.call!(query)
-		end)
-		|> Enum.to_list
 		state
 	end
 

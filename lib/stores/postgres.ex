@@ -13,7 +13,6 @@ defmodule Delta.Stores.Postgres do
 					[Enum.join(path, "."), Poison.encode!(value) | params],
 				}
 		end)
-		|> IO.inspect
 		state
 		|> Postgrex.query!("INSERT INTO data(path, value) VALUES #{statement} ON CONFLICT (path) DO UPDATE SET value = excluded.value", params)
 	end
