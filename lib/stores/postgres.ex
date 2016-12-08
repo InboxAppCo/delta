@@ -23,10 +23,8 @@ defmodule Delta.Stores.Postgres do
 			{min, max} = Delta.Store.range(path, %{min: nil, max: nil}) |> IO.inspect
 			state
 			|> Postgrex.query!("DELETE FROM data WHERE path >= $1 AND path < $2", [min, max])
-			IO.puts("Done here")
 		end)
 		|> Stream.run
-		IO.puts("DONE AG")
 	end
 
 	def query_path(state, path, opts) do
