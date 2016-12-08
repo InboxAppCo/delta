@@ -32,10 +32,11 @@ defmodule Delta.Stores.Postgres do
 				{min, max} = Delta.Store.range(path, %{min: nil, max: nil})
 				{
 					index + 2,
-					["(path >= #{index} AND path < #{index + 1})" | statement],
+					["(path >= $#{index} AND path < $#{index + 1})" | statement],
 					[min, max | params],
 				}
 			end)
+		IO.inspect(params)
 		state
 		|> Postgrex.query!("DELETE FROM data WHERE #{Enum.join(statement, " OR ")}", params)
 	end
