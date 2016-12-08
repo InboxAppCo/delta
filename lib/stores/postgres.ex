@@ -36,7 +36,6 @@ defmodule Delta.Stores.Postgres do
 					[min, max | params],
 				}
 			end)
-		IO.inspect(params)
 		state
 		|> Postgrex.query!("DELETE FROM data WHERE #{Enum.join(statement, " OR ")}", params)
 	end
