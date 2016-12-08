@@ -83,7 +83,6 @@ defmodule Delta.Mutation do
 
 		store.init(args)
 		|> store.merge(Dynamic.flatten(mutation.merge))
-		IO.puts("DOOONE")
 	end
 
 	defp write_merge(transaction, store, merge) do
