@@ -22,7 +22,7 @@ defmodule Delta.Stores.Postgres do
 		|> ParallelStream.each(fn {path, _} ->
 			{min, max} = Delta.Store.range(path, %{min: nil, max: nil}) |> IO.inspect
 			state
-			|> Postgrex.execute!("DELETE FROM data WHERE path >= $1 AND path < $2", [min, max])
+			|> Postgrex.query!("DELETE FROM data WHERE path >= $1 AND path < $2", [min, max])
 			IO.puts("Done here")
 		end)
 		|> Stream.run
