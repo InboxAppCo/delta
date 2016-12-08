@@ -26,6 +26,7 @@ defmodule Delta.Stores.Postgres do
 			state
 			|> Postgrex.query!("DELETE FROM data WHERE path >= $1 AND path < $2", [min, max])
 		end)
+		|> Stream.run
 	end
 
 	def query_path(state, path, opts) do
