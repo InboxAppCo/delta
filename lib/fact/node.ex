@@ -3,6 +3,7 @@ defmodule Delta.Fact.Node do
 	alias Delta.Dynamic
 	alias Delta.Watch
 	alias Delta.Query
+	alias Delta.Mutation
 
 	def start_link(read, key, pred) do
 		GenServer.start_link(__MODULE__, [read, key, pred], name: tuple(key, pred))
