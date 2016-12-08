@@ -37,7 +37,7 @@ defmodule Delta.Stores.Postgres do
 				}
 			end)
 		state
-		|> Postgrex.query!("DELETE FROM data WHERE #{Enum.join(params, "OR")}", params)
+		|> Postgrex.query!("DELETE FROM data WHERE #{Enum.join(statement, " OR ")}", params)
 	end
 
 	def query_path(state, path, opts) do
