@@ -17,10 +17,13 @@ defmodule Delta.Stores.Postgres do
 		|> Postgrex.query!("INSERT INTO data(path, value) VALUES #{statement} ON CONFLICT (path) DO UPDATE SET value = excluded.value", params)
 	end
 
-	def delete(state, path) do
-		{min, max} = Delta.Store.range(path, %{min: nil, max: nil})
-		state
-		|> Postgrex.query!("DELETE FROM data WHERE path >= $1 AND path < $2", [min, max])
+	def delete(state, atoms) do
+		atoms
+		|> ParallelStream.each(fn {path, _} ->
+			{min, max} = Delta.Store.range(path, %{min: nil, max: nil})
+			state
+			|> Postgrex.query!("DELETE FROM data WHERE path >= $1 AND path < $2", [min, max])
+		end)
 	end
 
 	def query_path(state, path, opts) do
