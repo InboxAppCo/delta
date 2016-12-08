@@ -18,6 +18,7 @@ defmodule Delta.Stores.Postgres do
 	end
 
 	def delete(state, atoms) do
+		IO.inspect(atoms)
 		atoms
 		|> ParallelStream.each(fn {path, _} ->
 			IO.inspect(path)
