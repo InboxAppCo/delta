@@ -21,6 +21,18 @@ defmodule Delta.Plugin.Mutation do
 				prepared
 			end
 
+			def merge(path, value) do
+				Mutation.new
+				|> Mutation.merge(path, value)
+				|> mutation(@master)
+			end
+
+			def delete(path) do
+				Mutation.new
+				|> Mutation.delete(path)
+				|> mutation(@master)
+			end
+
 		end
 	end
 end

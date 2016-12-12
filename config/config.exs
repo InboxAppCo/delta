@@ -29,6 +29,7 @@ use Mix.Config
 #
 #     import_config "#{Mix.env}.exs"
 
+
 config :cqerl,
 	cassandra_nodes: ["cassandra"],
 	keyspace: "data"

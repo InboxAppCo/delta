@@ -9,7 +9,7 @@ defmodule Delta.Stores.Cassandra do
 
 	def merge(_state, atoms) do
 		atoms
-		|> Enum.each(fn {[first | [second | rest]], value} ->
+		|> Enum.map(fn {[first | [second | rest]], value} ->
 			shard = shard(first, second)
 			field = Enum.join(rest, ".")
 			json = Poison.encode!(value)
@@ -24,12 +24,33 @@ defmodule Delta.Stores.Cassandra do
 			|> Query.put(:shard, shard)
 			|> Query.put(:field, field)
 		end)
-		|> ParallelStream.map(fn query ->
+		|> ParallelStream.each(fn query ->
 			Client.new! |> Query.call!(query)
 		end)
+		|> Stream.run
+		IO.inspect("done")
 	end
 
-	def delete(_state, _path) do
+	def delete(_state, atoms) do
+		atoms
+		|> Enum.map(fn {path, _} ->
+			{shard, min, max} = range(path, %{})
+			Query.new
+			|> Query.statement(~s(
+				DELETE FROM data.kv
+				WHERE
+					shard = ? AND
+					field >= :min AND
+					field < :max
+			))
+			|> Query.put(:shard, shard)
+			|> Query.put(:min, min)
+			|> Query.put(:max, max)
+		end)
+		|> ParallelStream.each(fn query ->
+			Client.new! |> Query.call!(query)
+		end)
+		|> Stream.run
 	end
 
 	def query_path(_state, path, opts) do

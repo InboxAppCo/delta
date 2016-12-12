@@ -32,10 +32,10 @@ defmodule Delta.Sample do
 		Delta.Sample.Interceptor
 	]
 
-	@read {Delta.Stores.Postgres, :postgres}
+	@read {Delta.Stores.Cassandra, []}
 
 	@writes [
-		{Delta.Stores.Postgres, :postgres}
+		{Delta.Stores.Cassandra, []}
 	]
 
 	def sample_fact do

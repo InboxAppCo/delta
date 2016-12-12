@@ -19,12 +19,12 @@ defmodule Delta.Store do
 
 	def range(path, opts) do
 		min =
-			case opts.min do
+			case Map.get(opts, :min) do
 				nil -> Enum.join(path, ".")
 				min -> Enum.join(path ++ [min], ".")
 			end
 		max =
-			case opts.max do
+			case Map.get(opts, :max) do
 				nil -> prefix(min)
 				max -> Enum.join(path ++ [max], ".")
 			end
