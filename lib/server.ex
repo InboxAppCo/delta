@@ -1,4 +1,4 @@
-defmodule Delta.Server do
+defmodule Delta.Server.Listener do
 	use GenServer
 	alias Socket.Web
 
@@ -18,14 +18,14 @@ defmodule Delta.Server do
 		socket =
 			server
 			|> Web.accept!
-		Delta.Server.Supervisor.start_socket(socket, handler)
+		Delta.Server.start_socket(socket, handler)
 		send(self, {:loop})
 		{:noreply, state}
 	end
 
 end
 
-defmodule Delta.Server.Supervisor do
+defmodule Delta.Server do
 	use Supervisor
 	import Supervisor.Spec
 
@@ -35,7 +35,7 @@ defmodule Delta.Server.Supervisor do
 
 	def init(args) do
 		children = [
-			worker(Delta.Server, args, restart: :permanent)
+			worker(Delta.Server.Listener, args, restart: :permanent)
 		]
 		supervise(children, strategy: :one_for_one)
 	end
@@ -132,8 +132,8 @@ defmodule Delta.Socket do
 	end
 end
 
-defmodule Delta.Socket.Sample do
-	def handle_command("hello", _, data) do
-		{:reply, "hello", data}
+defmodule Delta.Socket.EchoSample do
+	def handle_command(_, body, data) do
+		{:reply, body, data}
 	end
 end
