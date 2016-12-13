@@ -14,7 +14,7 @@ defmodule Delta.Mixfile do
 	#
 	# Type "mix help compile.app" for more information
 	def application do
-		[applications: [:logger, :syn, :cqerl, :cqex, :poison, :postgrex]]
+		[applications: [:logger, :syn, :cqerl, :cqex, :poison, :postgrex, :socket]]
 	end
 
 	# Dependencies can be Hex packages:
@@ -34,7 +34,8 @@ defmodule Delta.Mixfile do
 			{:postgrex, "~> 1.0.0-rc.1"},
 			{:poison, "~> 2.0"},
 			{:parallel_stream, "~> 1.0.5"},
-			{:credo, "~> 0.5", only: [:dev, :test]}
+			{:credo, "~> 0.5", only: [:dev, :test]},
+			{:socket, "~> 0.3.5"},
 		]
 	end
 end

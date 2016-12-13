@@ -14,5 +14,6 @@
   "re2": {:git, "https://github.com/matehat/re2.git", "1da77be636baae639db93f9008a62b9cba00557c", []},
   "semver": {:git, "https://github.com/nebularis/semver.git", "c7d509f38298ec6594be4efdcd8a8f2322760039", [ref: "c7d509"]},
   "snappy": {:git, "https://github.com/fdmanana/snappy-erlang-nif.git", "c4cd1bb35f3a3a399737d64bd03b479817b90e75", [ref: "c4cd1bb"]},
+  "socket": {:hex, :socket, "0.3.5", "6c23772e7eda60f129f36dd69a61930aab18ae9b8d74d7f767c85355cf0b585d", [:mix], []},
   "syn": {:hex, :syn, "1.5.0", "667f5691153efa4b10a1826a8c2a15aadf71332843151a309a03f6dd86b9feb7", [:rebar3], []},
   "uuid": {:git, "https://github.com/okeuday/uuid.git", "41e4e0edc4fe6291227b3fe74f7c2362f2525b21", [tag: "v1.4.1"]}}
