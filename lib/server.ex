@@ -18,8 +18,6 @@ defmodule Delta.Server do
 		socket =
 			server
 			|> Web.accept!
-		socket
-		|> Web.accept!
 		Delta.Server.Supervisor.start_socket(socket, handler)
 		send(self, {:loop})
 		{:noreply, state}
@@ -51,12 +49,15 @@ end
 
 defmodule Delta.Socket do
 	use GenServer
+	alias Socket.Web
 
 	def start_link(socket, handler) do
 		GenServer.start_link(__MODULE__, [socket, handler])
 	end
 
 	def init([socket, handler]) do
+		socket
+		|> Web.accept!
 		send(self, {:loop})
 		{:ok, {socket, handler, %{}}}
 	end
@@ -65,7 +66,7 @@ defmodule Delta.Socket do
 		send(self, {:loop})
 		next =
 			socket
-			|> Socket.Web.recv!
+			|> Web.recv!
 			|> process(state)
 	end
 
@@ -82,7 +83,7 @@ defmodule Delta.Socket do
 					|> response(action, body)
 					|> Poison.encode!
 				socket
-				|> Socket.Web.send!({:text, json})
+				|> Web.send!({:text, json})
 				{:noreply, {socket, handler, next}}
 			_ ->
 				{:stop, :normal, state}
