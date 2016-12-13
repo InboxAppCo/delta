@@ -70,6 +70,10 @@ defmodule Delta.Socket do
 			|> process(state)
 	end
 
+	def process(:close, state) do
+		{:stop, :normal, state}
+	end
+
 	def process({:text, raw}, state = {socket, handler, data}) do
 		case Poison.decode(raw) do
 			{:ok, %{
