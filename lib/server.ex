@@ -29,8 +29,8 @@ defmodule Delta.Server do
 	use Supervisor
 	import Supervisor.Spec
 
-	def start_link(args) do
-		Supervisor.start_link(__MODULE__, args, name: __MODULE__)
+	def start_link(handler, port) do
+		Supervisor.start_link(__MODULE__, [handler, port], name: __MODULE__)
 	end
 
 	def init(args) do
