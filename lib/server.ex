@@ -136,6 +136,12 @@ defmodule Delta.Socket do
 	end
 end
 
+defmodule Delta.Handler do
+	quote do
+
+	end
+end
+
 defmodule Delta.Socket.EchoSample do
 	def handle_command(_, body, data) do
 		{:reply, body, data}

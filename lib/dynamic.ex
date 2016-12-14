@@ -71,7 +71,7 @@ defmodule Delta.Dynamic do
 			false -> []
 			true ->
 				[
-					{path, input} |
+					{Enum.reverse(path), input} |
 					Enum.flat_map(input, fn {key, value} ->
 						atoms(value, [key | path])
 					end)
