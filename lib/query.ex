@@ -14,7 +14,7 @@ defmodule Delta.Query do
 		query
 		|> Dynamic.atoms
 		|> Enum.filter(&atom?(&1))
-		|> Enum.map(fn {path, opts} -> {Enum.reverse(path), opts} end)
+		|> Enum.map(fn {path, opts} -> {path, opts} end)
 	end
 
 	defp atom?({_, opts}) do
