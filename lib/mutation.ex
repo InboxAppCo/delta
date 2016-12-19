@@ -59,6 +59,7 @@ defmodule Delta.Mutation do
 					|> combine(result)
 				:ok -> collect
 				result = %{merge: _merge, delete: _delete} -> result
+				{:ok, result = %{merge: _merge, delete: _delete} } -> result
 			end
 		end)
 	end
