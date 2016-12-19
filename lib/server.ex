@@ -59,7 +59,8 @@ defmodule Delta.Socket do
 		socket
 		|> Web.accept!
 		send(self, {:loop})
-		{:ok, {socket, handler, %{}}}
+		{:ok, data} = handler.handle_connect()
+		{:ok, {socket, handler, data}}
 	end
 
 	def handle_info({:loop}, state = {socket, handler, data}) do
@@ -109,26 +110,6 @@ defmodule Delta.Socket do
 			}
 		end
 		|> Map.put(:key, key)
-	end
-
-	def reply({action, body, data}, socket) do
-		json =
-			action
-			|> case do
-					:reply -> %{
-						action: "drs.response",
-						body: body
-					}
-					:error -> %{
-						action: "drs.error",
-						body: %{
-							message: body
-						}
-					}
-				end
-			|> Poison.encode!
-		Socket.Web.send!(socket, {:text, json})
-		data
 	end
 
 	def terminate(_, {socket, _, _}) do
