@@ -13,7 +13,7 @@ defmodule Delta.Stores.Postgres do
 			|> Enum.reduce({1, "", []}, fn {path, value}, {index, statement, params} ->
 				{
 					index + 2,
-					statement <> "($#{index}, $#{index + 1})",
+					statement <> "($#{index}, $#{index + 1}), ",
 					[Enum.join(path, "|"), Poison.encode!(value) | params],
 				}
 		end)
