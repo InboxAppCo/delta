@@ -18,7 +18,7 @@ defmodule Delta.Stores.Postgres do
 				}
 		end)
 		state
-		|> Postgrex.query!("INSERT INTO data(path, value) VALUES #{Enum.join(statement, ', ')} ON CONFLICT (path) DO UPDATE SET value = excluded.value" |> IO.inspect, params)
+		|> Postgrex.query!("INSERT INTO data(path, value) VALUES #{Enum.join(statement, ", ")} ON CONFLICT (path) DO UPDATE SET value = excluded.value" |> IO.inspect, params)
 	end
 
 	def delete(state, []) do
