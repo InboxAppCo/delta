@@ -75,7 +75,7 @@ defmodule Delta.Stores.Cassandra do
 
 	defp range([first | [second | rest]], opts) do
 		shard = shard(first, second)
-		{min, max} = Delta.Store.range(rest, opts)
+		{min, max} = Delta.Store.range(rest, ".", opts)
 		{shard, min, max}
 	end
 

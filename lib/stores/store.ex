@@ -17,16 +17,16 @@ defmodule Delta.Store do
 		end)
 	end
 
-	def range(path, opts) do
+	def range(path, delimit, opts) do
 		min =
 			case Map.get(opts, :min) do
-				nil -> Enum.join(path, ".")
-				min -> Enum.join(path ++ [min], ".")
+				nil -> Enum.join(path, delimit)
+				min -> Enum.join(path ++ [min], delimit)
 			end
 		max =
 			case Map.get(opts, :max) do
 				nil -> prefix(min)
-				max -> Enum.join(path ++ [max], ".")
+				max -> Enum.join(path ++ [max], delimit)
 			end
 		{min, max}
 	end
