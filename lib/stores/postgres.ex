@@ -14,7 +14,7 @@ defmodule Delta.Stores.Postgres do
 				{
 					index + 2,
 					statement <> "($#{index}, $#{index + 1})",
-					[Enum.join(path, "."), Poison.encode!(value) | params],
+					[Enum.join(path, "|"), Poison.encode!(value) | params],
 				}
 		end)
 		state
@@ -40,7 +40,7 @@ defmodule Delta.Stores.Postgres do
 		state
 		|> Postgrex.query!("SELECT path, value FROM data WHERE path >= $1 AND path < $2", [min, max])
 		|> Map.get(:rows)
-		|> Stream.map(fn [path, value] -> {String.split(path, "."), value} end)
+		|> Stream.map(fn [path, value] -> {String.split(path, "|"), value} end)
 		|> Delta.Store.inflate(path, opts)
 	end
 
