@@ -71,7 +71,7 @@ defmodule Delta.Socket do
 			|> process(state)
 	end
 
-	def process({:close, :going_away, _}, state) do
+	def process({:close, _, _}, state) do
 		{:stop, :normal, state}
 	end
 
