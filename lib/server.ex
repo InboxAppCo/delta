@@ -11,6 +11,7 @@ defmodule Delta.Server.Listener do
 			port
 			|> Web.listen!
 		send(self, {:loop})
+
 		{:ok, {handler, server}}
 	end
 
@@ -18,6 +19,8 @@ defmodule Delta.Server.Listener do
 		socket =
 			server
 			|> Web.accept!
+		socket
+		|> Web.accept!
 		Delta.Server.start_socket(socket, handler)
 		send(self, {:loop})
 		{:noreply, state}
@@ -50,20 +53,19 @@ end
 defmodule Delta.Socket do
 	use GenServer
 	alias Socket.Web
+	alias Delta.UUID
 
 	def start_link(socket, handler) do
 		GenServer.start_link(__MODULE__, [socket, handler])
 	end
 
 	def init([socket, handler]) do
-		socket
-		|> Web.accept!
 		send(self, {:loop})
-		{:ok, data} = handler.handle_connect()
-		{:ok, {socket, handler, data}}
+		{:ok, handler } = handler.start_link(socket)
+		{:ok, {socket, handler }}
 	end
 
-	def handle_info({:loop}, state = {socket, handler, data}) do
+	def handle_info({:loop}, state = {socket, handler}) do
 		send(self, {:loop})
 		next =
 			socket
@@ -79,41 +81,23 @@ defmodule Delta.Socket do
 		{:stop, :normal, state}
 	end
 
-	def process({:text, raw}, state = {socket, handler, data}) do
+	def process({:text, raw}, state = {socket, handler}) do
 		case Poison.decode(raw) do
 			{:ok, %{
 				"action" => action,
 				"body" => body,
 				"key" => key,
 			}} ->
-				{action, body, next} = handler.handle_command(action, body, data)
 				json =
-					key
-					|> response(action, body)
+					GenServer.call(handler, {action, body})
+					|> Map.put(:key, key)
 					|> Poison.encode!
 				socket
 				|> Web.send!({:text, json})
-				{:noreply, {socket, handler, next}}
+				{:noreply, state}
 			_ ->
 				{:stop, :normal, state}
 		end
-	end
-
-	defp response(key, action, body) do
-		action
-		|> case do
-			:reply -> %{
-				action: "drs.response",
-				body: body
-			}
-			:error -> %{
-				action: "drs.error",
-				body: %{
-					message: body
-				}
-			}
-		end
-		|> Map.put(:key, key)
 	end
 
 	def terminate(_, {socket, _, _}) do
