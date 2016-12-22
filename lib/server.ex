@@ -1,6 +1,7 @@
 defmodule Delta.Server.Listener do
 	use GenServer
 	alias Socket.Web
+	alias Delta.UUID
 
 	def start_link(handler, port) do
 		GenServer.start_link(__MODULE__, [handler, port])
@@ -30,6 +31,7 @@ end
 
 defmodule Delta.Server do
 	use Supervisor
+	alias Delta.UUID
 	import Supervisor.Spec
 
 	def start_link(handler, port) do
@@ -45,7 +47,7 @@ defmodule Delta.Server do
 
 	def start_socket(socket, handler) do
 		import Supervisor.Spec
-		Supervisor.start_child(__MODULE__, worker(Delta.Socket, [socket, handler], restart: :temporary))
+		Supervisor.start_child(__MODULE__, worker(Delta.Socket, [socket, handler], id: UUID.ascending(), restart: :temporary))
 	end
 
 end
@@ -100,7 +102,7 @@ defmodule Delta.Socket do
 		end
 	end
 
-	def terminate(_, {socket, _, _}) do
+	def terminate(_, {socket, _}) do
 		Socket.Web.close(socket, :normal)
 	end
 end
