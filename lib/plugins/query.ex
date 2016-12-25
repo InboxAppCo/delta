@@ -31,13 +31,22 @@ defmodule Delta.Plugin.Query do
 				input
 				|> Query.atoms
 				|> ParallelStream.map(fn {path, opts} ->
-					{path, query_path(user, path, opts)}
+					{path, opts, query_path(user, path, opts)}
 				end)
-				|> Enum.reduce(%{}, fn {path, data}, collect ->
+				|> Enum.reduce(%{}, fn {path, opts, data}, collect ->
 					collect
 					|> Dynamic.put([:merge | path], data)
-					|> Dynamic.put([:delete | path], 1)
+					|> delete(path, opts)
 				end)
+			end
+
+			defp delete(mutation, path, opts) do
+				case Map.take(opts, [:min, :max]) do
+					%{} -> mutation
+					_ ->
+						mutation
+						|> Dynamic.put([:delete | path], 1)
+				end
 			end
 		end
 	end

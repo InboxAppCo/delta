@@ -8,7 +8,7 @@ defmodule Delta.Store do
 		|> Stream.take(
 			case opts.limit do
 				0 -> 10000
-				_ -> count
+				_ -> opts.limit
 			end
 		)
 		|> Stream.flat_map(fn x -> x end)
@@ -25,7 +25,7 @@ defmodule Delta.Store do
 			end
 		max =
 			case Map.get(opts, :max) do
-				nil -> prefix(min)
+				nil -> prefix(Enum.join(path, delimit))
 				max -> Enum.join(path ++ [max], delimit)
 			end
 		{min, max}
