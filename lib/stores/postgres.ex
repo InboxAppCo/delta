@@ -37,11 +37,16 @@ defmodule Delta.Stores.Postgres do
 
 	def query_path(state, path, opts) do
 		{min, max} = Delta.Store.range(path, "|", opts)
-		state
-		|> Postgrex.query!("SELECT path, value FROM data WHERE path >= $1 AND path < $2 ORDER BY path ASC", [min, max])
-		|> Map.get(:rows)
-		|> Stream.map(fn [path, value] -> {String.split(path, "|"), value} end)
-		|> Delta.Store.inflate(path, opts)
+		{:ok, result} =
+			state
+			|> Postgrex.transaction(fn conn ->
+				conn
+				|> Postgrex.stream("SELECT path, value FROM data WHERE path >= $1 AND path < $2 ORDER BY path ASC", [min, max])
+				|> Stream.flat_map(&Map.get(&1, :rows))
+				|> Stream.map(fn [path, value] -> {String.split(path, "|"), value} end)
+				|> Delta.Store.inflate(path, opts)
+			end)
+		result
 	end
 
 	def execute(state) do
