@@ -13,8 +13,8 @@ defmodule Delta.Query do
 	def atoms(query) do
 		query
 		|> Dynamic.atoms
-		|> Stream.map(fn {key, value} -> {key, Dynamic.keys_to_atoms(value)} end)
 		|> Stream.filter(&atom?(&1))
+		|> Stream.map(fn {key, value} -> {key, Dynamic.keys_to_atoms(value)} end)
 		|> Enum.map(fn {path, opts} -> {path, opts} end)
 	end
 
@@ -23,9 +23,9 @@ defmodule Delta.Query do
 		|> Map.keys
 		|> Enum.filter(fn key ->
 			case key do
-				:min -> false
-				:max -> false
-				:limit -> false
+				"min" -> false
+				"max" -> false
+				"limit" -> false
 				_ -> true
 			end
 		end)
