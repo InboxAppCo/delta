@@ -19,7 +19,7 @@ defmodule Delta.Stores.Postgres do
 				}
 		end)
 		state
-		|> Postgrex.query!("INSERT INTO data(path, value) VALUES #{Enum.join(statement, ", ")} ON CONFLICT (path) DO UPDATE SET value = excluded.value", params)
+		|> Postgrex.query!("INSERT INTO data(path, value) VALUES #{Enum.join(statement, ", ")} ON CONFLICT (path) DO UPDATE SET value = excluded.value", params,  pool: DBConnection.Poolboy)
 	end
 
 	def delete(state, []) do
@@ -31,7 +31,7 @@ defmodule Delta.Stores.Postgres do
 		|> ParallelStream.each(fn {path, _} ->
 			{min, max} = Delta.Store.range(path, @delimiter, %{min: nil, max: nil})
 			state
-			|> Postgrex.query!("DELETE FROM data WHERE path >= $1 AND path < $2", [min, max])
+			|> Postgrex.query!("DELETE FROM data WHERE path >= $1 AND path < $2", [min, max], pool: DBConnection.Poolboy)
 		end)
 		|> Stream.run
 	end
