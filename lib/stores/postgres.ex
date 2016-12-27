@@ -46,7 +46,7 @@ defmodule Delta.Stores.Postgres do
 				|> Stream.flat_map(&Map.get(&1, :rows))
 				|> Stream.map(fn [path, value] -> {String.split(path, @delimiter), value} end)
 				|> Delta.Store.inflate(path, opts)
-			end)
+			end, pool: DBConnection.Poolboy)
 		result
 	end
 
