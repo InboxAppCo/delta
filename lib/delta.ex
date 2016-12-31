@@ -9,6 +9,15 @@ defmodule Delta.Base do
 				@writes []
 				@read []
 				@before_compile Delta.Base
+
+				def start_server(port) do
+					Delta.Server.start_link(__MODULE__, port)
+				end
+
+				def server_spec(port) do
+					import Supervisor.Spec
+					supervisor(Delta.Server, [__MODULE__, port])
+				end
 			end
 		end
 
@@ -17,6 +26,18 @@ defmodule Delta.Base do
 				def interceptors, do: @interceptors || []
 				def writes, do: @writes || []
 				def read, do: @read || []
+
+				def handle_connect(_socket) do
+					{:ok, %{user: "anonymous"}}
+				end
+
+				def handle_command("drs.ping", _, state) do
+					{:reply, :os.system_time(:millisecond), state}
+				end
+
+				def handle_command(action, body, data) do
+					{:error, "Unknown command #{action}", data}
+				end
 			end
 		end
 end

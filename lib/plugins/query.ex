@@ -2,6 +2,7 @@ defmodule Delta.Plugin.Query do
 	defmacro __using__(_opts) do
 		alias Delta.Query
 		alias Delta.Dynamic
+		alias Delta.Mutation
 
 		quote do
 			use Delta.Base
@@ -10,7 +11,7 @@ defmodule Delta.Plugin.Query do
 				query_path("delta-master", path, opts)
 			end
 
-			def query_path(user, path, opts) do
+			def query_path(path, user, opts) do
 				case interceptors
 					|> Stream.map(&(&1.resolve_query(path, user, opts)))
 					|> Stream.filter(&(&1 !== nil))
@@ -27,13 +28,13 @@ defmodule Delta.Plugin.Query do
 				query("delta-master", input)
 			end
 
-			def query(user, input) do
+			def query(input, user) do
 				input
 				|> Query.atoms
 				|> ParallelStream.map(fn {path, opts} ->
-					{path, opts, query_path(user, path, opts)}
+					{path, opts, query_path(path, user, opts)}
 				end)
-				|> Enum.reduce(%{}, fn {path, opts, data}, collect ->
+				|> Enum.reduce(Mutation.new, fn {path, opts, data}, collect ->
 					collect
 					|> Dynamic.put([:merge | path], data)
 					|> delete(path, opts)
@@ -47,6 +48,14 @@ defmodule Delta.Plugin.Query do
 						mutation
 						|> Dynamic.put([:delete | path], 1)
 				end
+			end
+
+			def handle_command("delta.query", body, data) do
+				%{merge: merge, delete: delete} = query(body, data.user)
+				{:reply, %{
+					"$merge": merge,
+					"$delete": delete,
+				}, data}
 			end
 		end
 	end
