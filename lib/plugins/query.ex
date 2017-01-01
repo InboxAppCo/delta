@@ -8,7 +8,7 @@ defmodule Delta.Plugin.Query do
 			use Delta.Base
 
 			def query_path(path, opts \\ %{}) do
-				query_path("delta-master", path, opts)
+				query_path(path, "delta-master", opts)
 			end
 
 			def query_path(path, user, opts) do
@@ -25,7 +25,7 @@ defmodule Delta.Plugin.Query do
 			end
 
 			def query(input) do
-				query("delta-master", input)
+				query(input, "delta-master")
 			end
 
 			def query(input, user) do
