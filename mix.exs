@@ -14,7 +14,7 @@ defmodule Delta.Mixfile do
 	#
 	# Type "mix help compile.app" for more information
 	def application do
-		[applications: [:logger, :syn, :cqerl, :cqex, :poison, :postgrex, :socket]]
+		[applications: [:logger, :syn, :cqerl, :cqex, :poison, :postgrex, :socket, :poolboy]]
 	end
 
 	# Dependencies can be Hex packages:
@@ -29,6 +29,7 @@ defmodule Delta.Mixfile do
 	defp deps do
 		[
 			{:syn, "~> 1.5"},
+			{:poolboy, "~> 1.5"},
 			{:cqerl, github: "matehat/cqerl"},
 			{:cqex, "~> 0.2.0"},
 			{:postgrex, "~> 1.0.0-rc.1"},
