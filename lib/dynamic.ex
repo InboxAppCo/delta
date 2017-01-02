@@ -103,6 +103,16 @@ defmodule Delta.Dynamic do
 		end)
 	end
 
+	@doc ~S"""
+	Return layers of a map
+
+	## Examples
+		iex> Dynamic.atoms(%{a: %{b: 1}})
+		[
+			{[], %{a: %{b: 1}}},
+			{[:a], %{b: 1}},
+		]
+	"""
 	def atoms(input, path \\ []) do
 		case is_map(input) do
 			false -> []
