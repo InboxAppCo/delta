@@ -8,6 +8,15 @@ defmodule Delta.Dynamic do
 		input
 	end
 
+	@doc ~S"""
+	Inserts or updates value at `path`
+
+	## Examples
+		iex> Dynamic.put(%{}, [:a, :b], 1)
+		%{a: %{b: 1}}
+		iex> Dynamic.put(%{}, [:a], 1)
+		%{a: 1}
+	"""
 	def put(input, [h], value) do
 		Map.put(input, h, value)
 	end
@@ -21,6 +30,13 @@ defmodule Delta.Dynamic do
 		Map.put(input, h, put(child, t, value))
 	end
 
+	@doc ~S"""
+	Gets value at path
+
+	## Examples
+		iex> Dynamic.get(%{a: %{b: 1}}, [:a, :b])
+		1
+	"""
 	def get(input, []) do
 		input
 	end
@@ -29,6 +45,13 @@ defmodule Delta.Dynamic do
 		Kernel.get_in(input, path)
 	end
 
+	@doc ~S"""
+	Deletes value at path
+
+	## Examples
+		iex> Dynamic.delete(%{a: %{b: 1}}, [:a, :b])
+		%{a: %{}}
+	"""
 	def delete(input, [h]) do
 		Map.delete(input, h)
 	end
@@ -41,6 +64,13 @@ defmodule Delta.Dynamic do
 		end
 	end
 
+	@doc ~S"""
+	Deep merge two maps
+
+	## Examples
+		iex> Dynamic.combine(%{a: %{b: 1}}, %{a: %{c: 1}})
+		%{a: %{b: 1, c: 1}}
+	"""
 	def combine(left, right) do
 		Map.merge(left, right, &combine/3)
 	end
@@ -53,6 +83,13 @@ defmodule Delta.Dynamic do
 		right
 	end
 
+	@doc ~S"""
+	Returns a list of paths and values
+
+	## Examples
+		iex> Dynamic.flatten(%{a: %{b: 1}})
+		[{[:a, :b], 1}]
+	"""
 	def flatten(input, path \\ []) do
 		input
 		|> Enum.flat_map(fn {key, value} ->
@@ -80,7 +117,7 @@ defmodule Delta.Dynamic do
 	end
 
 	def keys_to_atoms(input) do
-		for {key, val} <- input, into: %{}, do: {String.to_atom(key), val} 
+		for {key, val} <- input, into: %{}, do: {String.to_atom(key), val}
 	end
 
 end
