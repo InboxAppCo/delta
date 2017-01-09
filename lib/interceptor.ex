@@ -23,6 +23,10 @@ defmodule Delta.Interceptor do
 			def resolve_query(_path, _user, _atom) do
 				nil
 			end
+
+			def validate_write(_path, _user, _atom, _mutation) do
+				:ok
+			end
 		end
 	end
 

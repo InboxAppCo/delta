@@ -44,6 +44,19 @@ defmodule Delta.Mutation do
 		|> Dynamic.put([:delete | path], Map.get(body, :delete) || %{})
 	end
 
+	def commit(mutation, interceptors, user) do
+		mutation
+		|> atoms
+		|> Stream.flat_map(&commit(mutation, interceptors, user, &1))
+		|> Stream.filter(&(&1 !== :ok))
+		|> Enum.at(0)
+	end
+
+	def commit(mutation, interceptors, user, {path, atom}) do
+		interceptors
+		|> Stream.map(&apply(&1, :intercept_commit, [path, user, atom, mutation]))
+	end
+
 	def prepare(mutation, interceptors, function, user) do
 		mutation
 		|> atoms
@@ -62,6 +75,19 @@ defmodule Delta.Mutation do
 				{:ok, result = %{merge: _merge, delete: _delete} } -> result
 			end
 		end)
+	end
+
+	def validate(mutation, interceptors, user) do
+		mutation
+		|> atoms
+		|> Stream.flat_map(&validate(mutation, interceptors, user, &1))
+		|> Stream.filter(&(&1 !== :ok))
+		|> Enum.at(0)
+	end
+
+	defp validate(mutation, interceptors, user, {path, atom}) do
+		interceptors
+		|> Stream.map(&apply(&1, :validate_write, [path, user, atom, mutation]))
 	end
 
 	def apply(input, mutation) do

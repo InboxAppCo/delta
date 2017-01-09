@@ -10,15 +10,23 @@ defmodule Delta.Plugin.Mutation do
 			def mutation(mut), do: mutation(mut, @master)
 
 			def mutation(mut, user) do
-				prepared = Mutation.prepare(mut, interceptors, :intercept_write, user)
+				case Mutation.validate(mut, interceptors, user) do
+					nil ->
+						prepared = Mutation.prepare(mut, interceptors, :intercept_write, user)
 
-				prepared
-				|> Watch.notify
+						prepared
+						|> Watch.notify
 
-				writes
-				|> Enum.each(fn store -> Mutation.write(prepared, store) end)
+						writes
+						|> Enum.each(fn store -> Mutation.write(prepared, store) end)
 
-				prepared
+						case Mutation.commit(mut, interceptors, user) do
+							nil -> prepared
+							error -> error
+						end
+
+					error -> error
+				end
 			end
 
 			def merge(path, value) do

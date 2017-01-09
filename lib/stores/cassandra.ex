@@ -28,7 +28,6 @@ defmodule Delta.Stores.Cassandra do
 			Client.new! |> Query.call!(query)
 		end)
 		|> Stream.run
-		IO.inspect("done")
 	end
 
 	def delete(_state, atoms) do

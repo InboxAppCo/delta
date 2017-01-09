@@ -80,4 +80,8 @@ defmodule Delta.Sample.Interceptor do
 		:ok
 	end
 
+	def intercept_commit([], _user, _atom, _mutation) do
+		:ok
+	end
+
 end
