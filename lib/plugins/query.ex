@@ -19,8 +19,7 @@ defmodule Delta.Plugin.Query do
 					|> Enum.to_list
 				do
 					[result] -> result
-					[] ->
-						Query.path(read, path, opts)
+					[] -> Query.path(read, path, opts)
 				end
 			end
 
