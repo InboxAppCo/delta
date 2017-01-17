@@ -2,7 +2,7 @@ defmodule Delta.Base do
 
 		defmacro __using__(_opts) do
 			quote do
-				Module.register_attribute(__MODULE__, :interceptors, accumulate: false)
+				Module.register_attribute(__MODULE__, :interceptors, accumulate: true)
 				Module.register_attribute(__MODULE__, :read, accumulate: false)
 				Module.register_attribute(__MODULE__, :writes, accumulate: false)
 				@interceptors []
@@ -23,7 +23,7 @@ defmodule Delta.Base do
 
 		defmacro __before_compile__(_env) do
 			quote do
-				def interceptors, do: @interceptors || []
+				def interceptors, do: Enum.flat_map(@interceptors, &(&1))
 				def writes, do: @writes || []
 				def read, do: @read || []
 
