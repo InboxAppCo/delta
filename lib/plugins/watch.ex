@@ -28,8 +28,8 @@ defmodule Delta.Plugin.Watch do
 				["user:watch:online", user]
 				|> Delta.query_path
 				|> Map.keys
-				|> Stream.map(&String.split("/"))
-				|> Enum.each(&watch)
+				|> Stream.map(&String.split(&1, "/"))
+				|> Enum.each(&watch/1)
 				{:reply, true, state}
 			end
 		end
