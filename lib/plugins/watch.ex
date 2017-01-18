@@ -37,6 +37,8 @@ defmodule Delta.Plugin.Watch do
 end
 
 defmodule Delta.Interceptor.Watch do
+	use Delta.Interceptor
+
 	def intercept_write([root, user, path], _user, _atom, _mut) when root == "user:watch:online" or root == "user:watch:offline" do
 		:ok
 	end
