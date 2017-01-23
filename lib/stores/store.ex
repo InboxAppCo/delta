@@ -1,7 +1,7 @@
 defmodule Delta.Store do
 	alias Delta.Dynamic
 
-	def inflate(stream, path, opts) do
+	def inflate(stream, path, opts, decoder \\ &Poison.decode!/1) do
 		count = Enum.count(path)
 		stream
 		|> Stream.chunk_by(fn {path, _value} -> Enum.at(path, count) end)
@@ -13,7 +13,7 @@ defmodule Delta.Store do
 		)
 		|> Stream.flat_map(fn x -> x end)
 		|> Enum.reduce(%{}, fn {path, value}, collect ->
-			Dynamic.put(collect, path, Poison.decode!(value))
+			Dynamic.put(collect, path, decoder.(value))
 		end)
 	end
 
