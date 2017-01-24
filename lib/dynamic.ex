@@ -1,12 +1,8 @@
 defmodule Delta.Dynamic do
 
-	def default(nil, default) do
-		default
-	end
-
-	def default(input, _default) do
-		input
-	end
+	def default(input, default), do: default(input, nil, default)
+	def default(input, compare, default) when input == compare, do: default
+	def default(input, compare, default), do: input
 
 	@doc ~S"""
 	Inserts or updates value at `path`
