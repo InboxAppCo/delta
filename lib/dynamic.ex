@@ -126,4 +126,8 @@ defmodule Delta.Dynamic do
 		for {key, val} <- input, into: %{}, do: {String.to_atom(key), val}
 	end
 
+	def keys_to_string(input) do
+		for {key, val} <- input, into: %{}, do: {Atom.to_string(key), val}
+	end
+
 end
