@@ -1,12 +1,8 @@
 defmodule Delta.Dynamic do
 
-	def default(nil, default) do
-		default
-	end
-
-	def default(input, _default) do
-		input
-	end
+	def default(input, default), do: default(input, nil, default)
+	def default(input, compare, default) when input == compare, do: default
+	def default(input, compare, default), do: input
 
 	@doc ~S"""
 	Inserts or updates value at `path`
@@ -128,6 +124,10 @@ defmodule Delta.Dynamic do
 
 	def keys_to_atoms(input) do
 		for {key, val} <- input, into: %{}, do: {String.to_atom(key), val}
+	end
+
+	def keys_to_string(input) do
+		for {key, val} <- input, into: %{}, do: {Atom.to_string(key), val}
 	end
 
 end

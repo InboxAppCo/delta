@@ -20,7 +20,7 @@ defmodule Delta.Plugin.Mutation do
 						writes
 						|> Enum.each(fn store -> Mutation.write(prepared, store) end)
 
-						case Mutation.commit(mut, interceptors, user) do
+						case Mutation.commit(prepared, interceptors, user) do
 							nil -> prepared
 							error -> error
 						end
