@@ -40,6 +40,7 @@ defmodule Delta.Watch do
 		joined = Enum.join(path, "/")
 		Mutation.new
 		|> Mutation.merge([root, user, joined], 1)
+		|> Mutation.merge(["userWatch", user, joined], 1)
 	end
 
 	def unwatch_all(user, path) do
