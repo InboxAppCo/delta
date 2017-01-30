@@ -119,11 +119,14 @@ defmodule Delta.Connection.Processor do
 			format(response, body)
 			|> Map.put(:key, key)
 			|> Poison.encode!
-		Web.send!(state.socket, {:text, json})
-		{:noreply, %{
-			state |
-			data: data
-		}}
+		case Web.send(state.socket, {:text, json}) do
+			:ok ->
+				{:noreply, %{
+					state |
+					data: data
+				}}
+			{:error, :closed} -> {:stop, :normal, state}
+		end
 	 end
 
 	 defp format(response, body) do
@@ -146,7 +149,6 @@ defmodule Delta.Connection.Processor do
 	 end
 
  	def terminate(reason, state) do
- 		IO.puts("Processor terminated #{reason}")
  		{reason, state}
  	end
 

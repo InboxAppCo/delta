@@ -9,66 +9,63 @@ defmodule Delta.Stores.Cassandra do
 
 	def merge(_state, atoms) do
 		atoms
-		|> Enum.map(fn {[first | [second | rest]], value} ->
+		|> ParallelStream.each(fn {[first | [second | rest]], value} ->
 			shard = shard(first, second)
 			field = Enum.join(rest, ".")
 			json = Poison.encode!(value)
-			Query.new
-			|> Query.statement(~s(
+			~s(
 				UPDATE data.kv SET
 					value = ?
 				WHERE
 					shard = ? AND
-					field = ?))
-			|> Query.put(:value, json)
-			|> Query.put(:shard, shard)
-			|> Query.put(:field, field)
-		end)
-		|> ParallelStream.each(fn query ->
-			Client.new! |> Query.call!(query)
+					field = ?
+			)
+			|> :erlcass.execute([
+				{:text, json},
+				{:text, shard},
+				{:text, field},
+			])
 		end)
 		|> Stream.run
 	end
 
 	def delete(_state, atoms) do
 		atoms
-		|> Enum.map(fn {path, _} ->
+		|> ParallelStream.each(fn {path, _} ->
 			{shard, min, max} = range(path, %{})
-			Query.new
-			|> Query.statement(~s(
+			~s(
 				DELETE FROM data.kv
 				WHERE
 					shard = ? AND
 					field >= :min AND
 					field < :max
-			))
-			|> Query.put(:shard, shard)
-			|> Query.put(:min, min)
-			|> Query.put(:max, max)
-		end)
-		|> ParallelStream.each(fn query ->
-			Client.new! |> Query.call!(query)
+			)
+			|> :erlcass.execute([
+				{:text, shard},
+				{:text, min},
+				{:text, max},
+			])
 		end)
 		|> Stream.run
 	end
 
 	def query_path(_state, path, opts) do
 		{shard, min, max} = range(path, opts)
-		query =
-			Query.new
-			|> Query.statement(~s(
+		{:ok, results} =
+			~s(
 				SELECT field, value FROM data.kv
 				WHERE
 					shard = ? AND
 					field >= :min AND
 					field < :max
-			))
-			|> Query.put(:shard, shard)
-			|> Query.put(:min, min)
-			|> Query.put(:max, max)
-		Client.new!
-		|> Query.call!(query)
-		|> Stream.map(fn [field: field, value: value] -> {String.split(shard, ".") ++ String.split(field, "."), value} end)
+			)
+			|> :erlcass.execute([
+				{:text, shard},
+				{:text, min},
+				{:text, max},
+			])
+		results
+		|> Stream.map(fn {field, value} -> {String.split(shard, ".") ++ String.split(field, "."), value} end)
 		|> Delta.Store.inflate(path, opts)
 	end
 
