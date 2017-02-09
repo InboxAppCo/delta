@@ -2,11 +2,11 @@ defmodule Delta.Watch do
 	alias Delta.Mutation
 
 	def watch(path) do
-		:syn.join(name(path), self)
+		:syn.join(name(path), self())
 	end
 
 	def unwatch(path) do
-		:syn.leave(name(path), self)
+		:syn.leave(name(path), self())
 	end
 
 	def notify(mutation) do

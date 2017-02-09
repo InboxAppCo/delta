@@ -1,7 +1,6 @@
 defmodule Delta.Server.Listener do
 	use GenServer
 	alias Socket.Web
-	alias Delta.UUID
 
 	def start_link(port) do
 		GenServer.start_link(__MODULE__, [port])
@@ -11,7 +10,8 @@ defmodule Delta.Server.Listener do
 		server =
 			port
 			|> Web.listen!
-		send(self, :loop)
+		self()
+		|> send(:loop)
 		{:ok, {port, server}}
 	end
 
@@ -22,7 +22,8 @@ defmodule Delta.Server.Listener do
 		socket
 		|> Web.accept!
 		Delta.Connection.Supervisor.start_child(port, socket)
-		send(self, :loop)
+		self()
+		|> send(:loop)
 		{:noreply, state}
 	end
 

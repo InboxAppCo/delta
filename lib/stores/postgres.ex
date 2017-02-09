@@ -4,7 +4,7 @@ defmodule Delta.Stores.Postgres do
 		pid
 	end
 
-	def merge(state, []) do
+	def merge(_state, []) do
 
 	end
 
@@ -22,7 +22,7 @@ defmodule Delta.Stores.Postgres do
 		|> Postgrex.query!("INSERT INTO data(path, value) VALUES #{Enum.join(statement, ", ")} ON CONFLICT (path) DO UPDATE SET value = excluded.value", params,  pool: DBConnection.Poolboy)
 	end
 
-	def delete(state, []) do
+	def delete(_state, []) do
 
 	end
 
@@ -50,7 +50,7 @@ defmodule Delta.Stores.Postgres do
 		result
 	end
 
-	def execute(state) do
+	def execute(_state) do
 	end
 
 end

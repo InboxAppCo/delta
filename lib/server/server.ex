@@ -1,6 +1,5 @@
 defmodule Delta.Server do
 	use Supervisor
-	alias Delta.UUID
 
 	def start_link(delta, port) do
 		Supervisor.start_link(__MODULE__, [delta, port], name: name(port))

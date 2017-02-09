@@ -1,7 +1,5 @@
 defmodule Delta.Stores.Cassandra do
 	# @behaviour Delta.Store
-	alias CQEx.Query
-	alias CQEx.Client
 
 	def init(_) do
 		{}

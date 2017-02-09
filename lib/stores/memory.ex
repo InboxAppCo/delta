@@ -14,10 +14,10 @@ defmodule Delta.Stores.Memory do
 	def init(_) do
 	end
 
-	def merge(state, []) do
+	def merge(_state, []) do
 	end
 
-	def merge(state, atoms) do
+	def merge(_state, atoms) do
 		atoms
 		|> Enum.each(fn {path, value} ->
 			joined = Enum.join(path, @delimiter)
@@ -25,10 +25,10 @@ defmodule Delta.Stores.Memory do
 		end)
 	end
 
-	def delete(state, []) do
+	def delete(_state, []) do
 	end
 
-	def delete(state, atoms) do
+	def delete(_state, atoms) do
 		atoms
 		|> Stream.flat_map(fn {path, _} ->
 			{min, max} = Delta.Store.range(path, @delimiter, %{min: nil, max: nil})
@@ -38,7 +38,7 @@ defmodule Delta.Stores.Memory do
 		|> Stream.run
 	end
 
-	def query_path(state, path, opts) do
+	def query_path(_state, path, opts) do
 		{min, max} = Delta.Store.range(path, @delimiter, opts)
 
 		iterate_keys(min, max)
@@ -61,7 +61,7 @@ defmodule Delta.Stores.Memory do
 	   |> Stream.take_while(fn next -> next !== :stop end)
 	end
 
-	def execute(state) do
+	def execute(_state) do
 	end
 
 end

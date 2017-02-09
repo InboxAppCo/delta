@@ -49,7 +49,8 @@ defmodule Delta.Connection do
 	end
 
 	def init([processor, socket]) do
-		send(self, :read)
+		self()
+		|> send(:read)
 		{:ok, %{
 			processor: processor,
 			socket: socket,
@@ -57,18 +58,18 @@ defmodule Delta.Connection do
 	end
 
 	def handle_info(:read, state = %{socket: socket}) do
-		msg =
-			socket
-			|> Web.recv
-			|> handle_payload(state)
+		socket
+		|> Web.recv
+		|> handle_payload(state)
 	end
 
 	defp handle_payload({:ok, {:text, data}}, state) do
 		Delta.Connection.Processor.process(state.processor, data)
-		send(self, :read)
+		self()
+		|> send(:read)
 		{:noreply, state}
 	end
-	defp handle_payload(payload, state), do:  {:stop, :normal, state}
+	defp handle_payload(_payload, state), do:  {:stop, :normal, state}
 
 	def terminate(reason, state) do
 		{reason, state}
