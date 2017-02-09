@@ -2,7 +2,6 @@ defmodule Delta.Plugin.Mutation do
 	defmacro __using__(_opts) do
 
 		quote do
-			use Delta.Base
 			alias Delta.Mutation
 			alias Delta.Watch
 			@master "delta-master"
@@ -10,6 +9,7 @@ defmodule Delta.Plugin.Mutation do
 			def mutation(mut), do: mutation(mut, @master)
 
 			def mutation(mut, user) do
+				interceptors = interceptors()
 				case Mutation.validate(mut, interceptors, user) do
 					nil ->
 						prepared = Mutation.prepare(mut, interceptors, :intercept_write, user)
@@ -17,7 +17,7 @@ defmodule Delta.Plugin.Mutation do
 						prepared
 						|> Watch.notify
 
-						writes
+						writes()
 						|> Enum.each(fn store -> Mutation.write(prepared, store) end)
 
 						case Mutation.commit(prepared, interceptors, user) do
@@ -45,7 +45,7 @@ defmodule Delta.Plugin.Mutation do
 				merge = Map.get(body, "$merge") || %{}
 				delete = Map.get(body, "$delete") || %{}
 				mutation = Mutation.new(merge, delete)
-				result = Delta.mutation(mutation, user)
+				result = mutation(mutation, user)
 				{:reply, result, state}
 			end
 

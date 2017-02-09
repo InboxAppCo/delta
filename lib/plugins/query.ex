@@ -5,21 +5,20 @@ defmodule Delta.Plugin.Query do
 		alias Delta.Mutation
 
 		quote do
-			use Delta.Base
 
 			def query_path(path, opts \\ %{}) do
 				query_path(path, "delta-master", opts)
 			end
 
 			def query_path(path, user, opts) do
-				case interceptors
+				case interceptors()
 					|> Stream.map(&(&1.resolve_query(path, user, opts)))
 					|> Stream.filter(&(&1 !== nil))
 					|> Stream.take(1)
 					|> Enum.to_list
 				do
 					[result] -> result
-					[] -> Query.path(read, path, opts)
+					[] -> Query.path(read(), path, opts)
 				end
 			end
 

@@ -26,7 +26,7 @@ defmodule Delta.Plugin.Watch do
 
 			def handle_command("delta.subscribe", body, state = %{user: user}) do
 				["user:watch:online", user]
-				|> Delta.query_path
+				|> query_path
 				|> Map.keys
 				|> Stream.map(&String.split(&1, "/"))
 				|> Enum.each(&watch/1)

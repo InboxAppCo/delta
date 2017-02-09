@@ -39,7 +39,7 @@ defmodule Delta.Mutation do
 	end
 
 	def inflate({path, body}) do
-		new
+		new()
 		|> Dynamic.put([:merge | path], Map.get(body, :merge) || %{})
 		|> Dynamic.put([:delete | path], Map.get(body, :delete) || %{})
 	end
