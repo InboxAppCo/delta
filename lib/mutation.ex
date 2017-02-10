@@ -3,8 +3,8 @@ defmodule Delta.Mutation do
 
 	def new(merge \\ %{}, delete \\ %{}) do
 		%{
-			merge: merge,
-			delete: delete,
+			merge: merge || %{},
+			delete: delete || %{},
 		}
 	end
 
@@ -32,10 +32,21 @@ defmodule Delta.Mutation do
 	end
 
 	def combine(left, right) do
-		Dynamic.combine(
-			left,
-			right
-		)
+		%{
+			merge:
+				left.merge
+				|> Delta.Mutation.apply(%{delete: right.delete, merge: %{}})
+				|> Delta.Mutation.apply(%{delete: %{}, merge: right.merge}),
+			delete: Dynamic.combine(
+				left.delete,
+				right.delete
+			),
+		}
+	end
+
+	def combine_stream(stream, input) do
+		stream
+		|> Enum.reduce(input, fn item, collect -> combine(collect, item) end)
 	end
 
 	def inflate({path, body}) do
@@ -102,6 +113,22 @@ defmodule Delta.Mutation do
 		|> Enum.reduce(deleted, fn {path, value}, collect ->
 			Dynamic.put(collect, path, value)
 		end)
+	end
+
+	def from_json(data) do
+		%{
+			"$merge" => merge,
+			"$delete" => delete,
+		} = Poison.decode!(data)
+		new(merge, delete)
+	end
+
+	def to_json(%{merge: merge, delete: delete}) do
+		%{
+			"$merge" => merge,
+			"$delete" => delete,
+		}
+		|> Poison.encode!
 	end
 
 	def write(mutation, {store, args}) do

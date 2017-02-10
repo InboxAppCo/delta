@@ -58,6 +58,8 @@ defmodule Delta.Connection do
 	end
 
 	def handle_info(:read, state = %{socket: socket}) do
+		self()
+		|> send(:read)
 		socket
 		|> Web.recv
 		|> handle_payload(state)
@@ -65,11 +67,16 @@ defmodule Delta.Connection do
 
 	defp handle_payload({:ok, {:text, data}}, state) do
 		Delta.Connection.Processor.process(state.processor, data)
-		self()
-		|> send(:read)
 		{:noreply, state}
 	end
-	defp handle_payload(_payload, state), do:  {:stop, :normal, state}
+
+	defp handle_payload({:ok, _}, state) do
+		{:noreply, state}
+	end
+
+	defp handle_payload(payload, state) do
+		{:stop, :normal, state}
+	end
 
 	def terminate(reason, state) do
 		{reason, state}
@@ -95,10 +102,10 @@ defmodule Delta.Connection.Processor do
 	 end
 
 	 def process(pid, msg) do
-		 GenServer.cast(pid, {:process, msg})
+		 send(pid, {:process, msg})
 	 end
 
-	 def handle_cast({:process, msg}, state) do
+	 def handle_info({:process, msg}, state) do
 		 %{
 			 "key" => key,
 			 "action" => action,
@@ -116,7 +123,7 @@ defmodule Delta.Connection.Processor do
 	 defp write(event, state), do: write(event, "", state)
 
 	 defp write({response, body, data}, key, state) do
-		json =
+		 json =
 			format(response, body)
 			|> Map.put(:key, key)
 			|> Poison.encode!

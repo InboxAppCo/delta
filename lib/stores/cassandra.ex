@@ -1,5 +1,6 @@
 defmodule Delta.Stores.Cassandra do
 	# @behaviour Delta.Store
+	alias Delta.Mutation
 
 	def init(_) do
 		{}
@@ -65,6 +66,35 @@ defmodule Delta.Stores.Cassandra do
 		results
 		|> Stream.map(fn {field, value} -> {String.split(shard, ".") ++ String.split(field, "."), value} end)
 		|> Delta.Store.inflate(path, opts)
+	end
+
+	def sync(_state, user, offset) do
+		{offset, []}
+		|> Stream.iterate(fn {current, _} ->
+			case current do
+				nil -> :stop
+				_ ->
+					{:ok, results} =
+						~s(
+							SELECT key, value
+							FROM data.queue
+							WHERE
+								user = ? AND
+								key > ?
+							LIMIT 1000
+						)
+						|> :erlcass.execute([
+							{:text, user},
+							{:text, current}
+						])
+					{next, _} = List.last(results) || {nil, nil}
+					{next, results}
+			end
+		end)
+		|> Stream.take_while(&(&1 !== :stop ))
+		|> Stream.flat_map(fn {_, value} -> value end)
+		|> Stream.map(fn {_, value} -> value end)
+		|> Stream.map(&Mutation.from_json/1)
 	end
 
 	defp range([first | [second | rest]], opts) do

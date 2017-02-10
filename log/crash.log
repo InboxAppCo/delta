@@ -1,0 +1,50 @@
+2017-02-10 12:45:57 =SUPERVISOR REPORT====
+     Supervisor: {local,'Elixir.Logger.Supervisor'}
+     Context:    child_terminated
+     Reason:     normal
+     Offender:   [{pid,<0.2099.0>},{id,'Elixir.Logger.ErrorHandler'},{mfargs,{'Elixir.Logger.Watcher',watcher,[error_logger,'Elixir.Logger.ErrorHandler',{true,false,500}]}},{restart_type,permanent},{shutdown,5000},{child_type,worker}]
+
+2017-02-10 12:46:02 =CRASH REPORT====
+  crasher:
+    initial call: erlcass:init/1
+    pid: <0.2179.0>
+    registered_name: erlcass
+    exception exit: {{bad_return_value,{stop,{error,connect_session_timeout},shutdown,{state,undefined}}},[{gen_server,init_it,6,[{file,"gen_server.erl"},{line,356}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,247}]}]}
+    ancestors: [erlcass_sup,<0.2175.0>]
+    messages: [{session_connected,<0.2179.0>,{error,<<"No hosts available for the control connection">>}}]
+    links: [<0.2177.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 233
+    stack_size: 27
+    reductions: 430
+  neighbours:
+2017-02-10 12:46:02 =SUPERVISOR REPORT====
+     Supervisor: {local,erlcass_sup}
+     Context:    start_error
+     Reason:     {bad_return_value,{stop,{error,connect_session_timeout},shutdown,{state,undefined}}}
+     Offender:   [{pid,undefined},{id,erlcass},{mfargs,{erlcass,start_link,[]}},{restart_type,permanent},{shutdown,infinity},{child_type,worker}]
+
+2017-02-10 12:46:02 =CRASH REPORT====
+  crasher:
+    initial call: application_master:init/4
+    pid: <0.2174.0>
+    registered_name: []
+    exception exit: {{{shutdown,{failed_to_start_child,erlcass,{bad_return_value,{stop,{error,connect_session_timeout},shutdown,{state,undefined}}}}},{erlcass_app,start,[normal,[]]}},[{application_master,init,4,[{file,"application_master.erl"},{line,134}]},{proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,247}]}]}
+    ancestors: [<0.2173.0>]
+    messages: [{'EXIT',<0.2175.0>,normal}]
+    links: [<0.2173.0>,<0.31.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 376
+    stack_size: 27
+    reductions: 105
+  neighbours:
+2017-02-10 12:46:32 =SUPERVISOR REPORT====
+     Supervisor: {local,'Elixir.Logger.Supervisor'}
+     Context:    child_terminated
+     Reason:     normal
+     Offender:   [{pid,<0.169.0>},{id,'Elixir.Logger.ErrorHandler'},{mfargs,{'Elixir.Logger.Watcher',watcher,[error_logger,'Elixir.Logger.ErrorHandler',{true,false,500}]}},{restart_type,permanent},{shutdown,5000},{child_type,worker}]
+
