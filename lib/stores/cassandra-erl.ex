@@ -1,7 +1,6 @@
-defmodule Delta.Stores.Cassandra do
+defmodule Delta.Stores.Cassandra.Erl do
 	# @behaviour Delta.Store
-	alias CQEx.Query
-	alias CQEx.Client
+	alias Delta.Mutation
 
 	def init(_) do
 		{}
@@ -9,67 +8,93 @@ defmodule Delta.Stores.Cassandra do
 
 	def merge(_state, atoms) do
 		atoms
-		|> Enum.map(fn {[first | [second | rest]], value} ->
+		|> ParallelStream.each(fn {[first | [second | rest]], value} ->
 			shard = shard(first, second)
 			field = Enum.join(rest, ".")
 			json = Poison.encode!(value)
-			Query.new
-			|> Query.statement(~s(
+			~s(
 				UPDATE data.kv SET
 					value = ?
 				WHERE
 					shard = ? AND
-					field = ?))
-			|> Query.put(:value, json)
-			|> Query.put(:shard, shard)
-			|> Query.put(:field, field)
-		end)
-		|> ParallelStream.each(fn query ->
-			Client.new! |> Query.call!(query)
+					field = ?
+			)
+			|> :erlcass.execute([
+				{:text, json},
+				{:text, shard},
+				{:text, field},
+			])
 		end)
 		|> Stream.run
 	end
 
 	def delete(_state, atoms) do
 		atoms
-		|> Enum.map(fn {path, _} ->
+		|> ParallelStream.each(fn {path, _} ->
 			{shard, min, max} = range(path, %{})
-			Query.new
-			|> Query.statement(~s(
+			~s(
 				DELETE FROM data.kv
 				WHERE
 					shard = ? AND
 					field >= :min AND
 					field < :max
-			))
-			|> Query.put(:shard, shard)
-			|> Query.put(:min, min)
-			|> Query.put(:max, max)
-		end)
-		|> ParallelStream.each(fn query ->
-			Client.new! |> Query.call!(query)
+			)
+			|> :erlcass.execute([
+				{:text, shard},
+				{:text, min},
+				{:text, max},
+			])
 		end)
 		|> Stream.run
 	end
 
 	def query_path(_state, path, opts) do
 		{shard, min, max} = range(path, opts)
-		query =
-			Query.new
-			|> Query.statement(~s(
+		{:ok, results} =
+			~s(
 				SELECT field, value FROM data.kv
 				WHERE
 					shard = ? AND
 					field >= :min AND
 					field < :max
-			))
-			|> Query.put(:shard, shard)
-			|> Query.put(:min, min)
-			|> Query.put(:max, max)
-		Client.new!
-		|> Query.call!(query)
-		|> Stream.map(fn [field: field, value: value] -> {String.split(shard, ".") ++ String.split(field, "."), value} end)
+			)
+			|> :erlcass.execute([
+				{:text, shard},
+				{:text, min},
+				{:text, max},
+			])
+		results
+		|> Stream.map(fn {field, value} -> {String.split(shard, ".") ++ String.split(field, "."), value} end)
 		|> Delta.Store.inflate(path, opts)
+	end
+
+	def sync(_state, user, offset) do
+		{offset, []}
+		|> Stream.iterate(fn {current, _} ->
+			case current do
+				nil -> :stop
+				_ ->
+					{:ok, results} =
+						~s(
+							SELECT key, value
+							FROM data.queue
+							WHERE
+								user = ? AND
+								key > ?
+							LIMIT 1000
+						)
+						|> :erlcass.execute([
+							{:text, user},
+							{:text, current}
+						])
+					{next, _} = List.last(results) || {nil, nil}
+					{next, results}
+			end
+		end)
+		|> Stream.take_while(&(&1 !== :stop ))
+		|> Stream.flat_map(fn {_, value} -> value end)
+		|> Stream.map(fn {_, value} -> value end)
+		|> Stream.map(&Mutation.from_json/1)
 	end
 
 	defp range([first | [second | rest]], opts) do
