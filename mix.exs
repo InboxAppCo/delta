@@ -30,8 +30,6 @@ defmodule Delta.Mixfile do
 		[
 			{:syn, "~> 1.5"},
 			{:poolboy, "~> 1.5"},
-			{:erlcass, github: "silviucpp/erlcass"},
-			{:postgrex, "~> 1.0.0-rc.1"},
 			{:poison, "~> 2.0"},
 			{:parallel_stream, "~> 1.0.5"},
 			{:credo, "~> 0.5", only: [:dev, :test]},

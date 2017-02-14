@@ -21,6 +21,7 @@ defmodule Delta.Plugin.Mutation do
 						|> Enum.each(fn store -> Mutation.write(prepared, store) end)
 
 						case Mutation.commit(prepared, interceptors, user) do
+							:ok -> prepared
 							nil -> prepared
 							error -> error
 						end
@@ -42,10 +43,12 @@ defmodule Delta.Plugin.Mutation do
 			end
 
 			def handle_command("delta.mutation", body, state = %{user: user}) do
+				IO.inspect(body)
 				merge = Map.get(body, "$merge") || %{}
 				delete = Map.get(body, "$delete") || %{}
 				mutation = Mutation.new(merge, delete)
 				result = mutation(mutation, user)
+				IO.inspect(result)
 				{:reply, result, state}
 			end
 
