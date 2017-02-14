@@ -14,22 +14,22 @@ defmodule Delta.Query do
 		query
 		|> Dynamic.atoms
 		|> Stream.filter(&atom?(&1))
-		|> Stream.map(fn {key, value} -> {key, Dynamic.keys_to_atoms(value)} end)
+		|> Stream.map(fn {key, value} -> {key, convert(value)} end)
 		|> Enum.map(fn {path, opts} -> {path, opts} end)
 	end
 
 	defp atom?({_, opts}) do
 		opts
-		|> Map.keys
-		|> Enum.filter(fn key ->
-			case key do
-				"min" -> false
-				"max" -> false
-				"limit" -> false
-				_ -> true
-			end
-		end)
-		|> Enum.count == 0
+		|> Map.values
+		|> Enum.all?(&(!is_map(&1)))
+	end
+
+	defp convert(value) do
+		%{
+			min: Map.get(value, "$min") || Map.get(value, "min"),
+			max: Map.get(value, "$max") || Map.get(value, "max"),
+			limit: Map.get(value, "$limit") || Map.get(value, "limit", 0),
+		}
 	end
 
 	def path({store, args}, path, opts \\ %{}) do

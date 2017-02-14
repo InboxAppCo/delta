@@ -4,6 +4,7 @@ defmodule Delta.Plugin.Mutation do
 		quote do
 			alias Delta.Mutation
 			alias Delta.Watch
+			alias Delta.Queue
 			@master "delta-master"
 
 			def mutation(mut), do: mutation(mut, @master)
@@ -19,6 +20,10 @@ defmodule Delta.Plugin.Mutation do
 
 						writes()
 						|> Enum.each(fn store -> Mutation.write(prepared, store) end)
+
+						queue = Queue.write(prepared)
+						writes()
+						|> Enum.each(fn store -> Mutation.write(queue, store) end)
 
 						case Mutation.commit(prepared, interceptors, user) do
 							:ok -> prepared

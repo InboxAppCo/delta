@@ -37,8 +37,24 @@ end
 
 defmodule Delta.Interceptor.Watch do
 	use Delta.Interceptor
+	alias Delta.Mutation
 
-	def intercept_write([root, _, _], _user, _atom, _mut) when root == "user:watch:online" or root == "user:watch:offline" do
-		:ok
+	def intercept_write(["user:watch:offline", user], _user, atom, mutation) do
+		mutation =
+			Map.get(atom, :merge, %{})
+			|> Map.keys
+			|> Enum.reduce(mutation, fn path, collect ->
+				collect
+				|> Mutation.merge(["path:watch:offline", path, user], 1)
+			end)
+		mutation =
+			Map.get(atom, :delete, %{})
+			|> Map.keys
+			|> Enum.reduce(mutation, fn path, collect ->
+				collect
+				|> Mutation.delete(["path:watch:offline", path, user])
+			end)
+
+		{:ok, mutation}
 	end
 end
