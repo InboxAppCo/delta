@@ -14,7 +14,7 @@ defmodule Delta.Mixfile do
 	#
 	# Type "mix help compile.app" for more information
 	def application do
-		[applications: [:logger, :syn, :poison, :postgrex, :socket, :poolboy, :erlcass]]
+		[applications: [:logger, :syn, :poison, :postgrex, :socket, :poolboy]]
 	end
 
 	# Dependencies can be Hex packages:
