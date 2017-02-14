@@ -5,6 +5,9 @@ defmodule Delta.UUID do
 	@length 8
 	@total @length + 12
 
+	def descending_max do "zzzzzzzzzzzzzzzzzzzz" end
+	def ascending_max do "00000000000000000000" end
+
 	def descending() do
 		descending_from(:os.system_time(:milli_seconds))
 	end
