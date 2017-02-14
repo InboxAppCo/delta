@@ -43,12 +43,10 @@ defmodule Delta.Plugin.Mutation do
 			end
 
 			def handle_command("delta.mutation", body, state = %{user: user}) do
-				IO.inspect(body)
 				merge = Map.get(body, "$merge") || %{}
 				delete = Map.get(body, "$delete") || %{}
 				mutation = Mutation.new(merge, delete)
 				result = mutation(mutation, user)
-				IO.inspect(result)
 				{:reply, result, state}
 			end
 
