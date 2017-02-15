@@ -21,6 +21,15 @@ defmodule Delta.Mutation do
 			atoms(merge, :merge),
 			atoms(delete, :delete)
 		)
+		|> Stream.map(fn {path, value} ->
+			merge = Map.get(value, :merge, %{})
+			delete = Map.get(value, :delete, %{})
+			{path, %{
+				merge: merge,
+				delete: delete,
+			}}
+		end)
+		|> Enum.into(%{})
 	end
 
 	defp atoms(input, type) do
