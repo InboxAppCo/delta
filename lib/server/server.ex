@@ -14,7 +14,7 @@ defmodule Delta.Server do
 	end
 
 	defp name(port) do
-		{:global, {__MODULE__, port}}
+		{:global, {Node.self(), __MODULE__, port}}
 	end
 
 	def connection_sup do

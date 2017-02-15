@@ -17,7 +17,7 @@ defmodule Delta.Connection.Supervisor do
 	end
 
 	defp name(port) do
-		{:global, {__MODULE__, port}}
+		{:global, {Node.self(), __MODULE__, port}}
 	end
 end
 
