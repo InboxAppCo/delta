@@ -80,7 +80,6 @@ defmodule Delta.Connection do
 	end
 
 	defp handle_payload(payload, state) do
-		IO.inspect(payload)
 		{:stop, :normal, state}
 	end
 
