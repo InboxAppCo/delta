@@ -8,7 +8,9 @@ defmodule Delta.Queue do
 	def write(mutation) do
 		mutation
 		|> Mutation.atoms
-		|> Enum.reduce(Mutation.new, &write_atom/2)
+		|> Task.async_stream(&write_atom(&1, mutation), max_concurrency: 100)
+		|> Stream.map(fn {:ok, mutation} -> mutation end)
+		|> Enum.reduce(Mutation.new, fn item, collect -> Mutation.combine(collect, item) end)
 	end
 
 	def write_atom(atom = {path, _body}, mutation) do
@@ -32,7 +34,7 @@ defmodule Delta.Queue do
 			["user:queue", "#{user}:#{shard}"]
 			|> Delta.query_path(%{min: uuid})
 			|> Stream.map(fn {key, value} -> {key, Poison.decode!(value)} end)
-		end, max_concurrency: 10)
+		end, max_concurrency: 10, timeout: 30_000)
 		|> Stream.flat_map(fn {:ok, values} -> values end)
 		|> Enum.sort_by(fn {key, value} -> key end)
 	end

@@ -18,12 +18,12 @@ defmodule Delta.Plugin.Mutation do
 						prepared
 						|> Watch.notify
 
+						queued =
+							prepared
+							|> Queue.write
+							|> Mutation.combine(prepared)
 						writes()
-						|> Enum.each(fn store -> Mutation.write(prepared, store) end)
-
-						queue = Queue.write(prepared)
-						writes()
-						|> Enum.each(fn store -> Mutation.write(queue, store) end)
+						|> Enum.each(fn store -> Mutation.write(queued, store) end)
 
 						case Mutation.commit(prepared, interceptors, user) do
 							:ok -> prepared

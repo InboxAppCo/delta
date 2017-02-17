@@ -24,9 +24,9 @@ defmodule Delta.Stores.Cassandra do
 			|> Query.put(:shard, shard)
 			|> Query.put(:field, field)
 		end)
-		|> ParallelStream.each(fn query ->
+		|> Task.async_stream(fn query ->
 			Client.new! |> Query.call!(query)
-		end)
+		end, max_concurrency: 100)
 		|> Stream.run
 	end
 
@@ -46,9 +46,9 @@ defmodule Delta.Stores.Cassandra do
 			|> Query.put(:min, min)
 			|> Query.put(:max, max)
 		end)
-		|> ParallelStream.each(fn query ->
+		|> Task.async_stream(fn query ->
 			Client.new! |> Query.call!(query)
-		end)
+		end, max_concurrency: 100)
 		|> Stream.run
 	end
 
