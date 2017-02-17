@@ -40,6 +40,13 @@ defmodule Delta.Plugin.Watch do
 				|> Enum.each(fn {path, _} -> watch(path) end)
 				{:reply, true, state}
 			end
+
+			def handle_command("delta.unwatch", body, state) do
+				body
+				|> Dynamic.flatten
+				|> Enum.each(fn {path, _} -> unwatch(path) end)
+				{:reply, true, state}
+			end
 		end
 	end
 end
