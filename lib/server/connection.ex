@@ -70,11 +70,13 @@ defmodule Delta.Connection do
 		{:noreply, state}
 	end
 
-	defp handle_payload({:ok, _}, state) do
+	defp handle_payload({:ok, body}, state) do
+		IO.inspect(body)
 		{:noreply, state}
 	end
 
 	defp handle_payload(payload, state) do
+		IO.inspect(payload)
 		{:stop, :normal, state}
 	end
 
