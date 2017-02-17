@@ -1,6 +1,7 @@
 defmodule Delta.Plugin.Watch do
 	defmacro __using__(_opts) do
 		alias Delta.Watch
+		alias Delta.Dynamic
 
 		quote do
 
@@ -27,8 +28,16 @@ defmodule Delta.Plugin.Watch do
 				["user:watch:online", user]
 				|> query_path
 				|> Map.keys
+				|> IO.inspect
 				|> Stream.map(&String.split(&1, "/"))
 				|> Enum.each(&watch/1)
+				{:reply, true, state}
+			end
+
+			def handle_command("delta.watch", body, state) do
+				body
+				|> Dynamic.flatten
+				|> Enum.each(&fn {path, _} -> watch(path) end)
 				{:reply, true, state}
 			end
 		end
