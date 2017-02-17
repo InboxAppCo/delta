@@ -70,6 +70,10 @@ defmodule Delta.Connection do
 		{:noreply, state}
 	end
 
+	defp handle_payload({:ok, {:ping, _}}, state) do
+		{:noreply, state}
+	end
+
 	defp handle_payload({:ok, body}, state) do
 		IO.inspect(body)
 		{:noreply, state}
