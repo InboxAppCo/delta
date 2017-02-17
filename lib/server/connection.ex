@@ -65,7 +65,7 @@ defmodule Delta.Connection do
 		|> handle_payload(state)
 	end
 
-	defp handle_payload({:ok, {type, data}}, state) when type == :text || type == :binary do
+	defp handle_payload({:ok, {type, data}}, state) when type == :text or type == :binary do
 		Delta.Connection.Processor.process(state.processor, data)
 		{:noreply, state}
 	end
