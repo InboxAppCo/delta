@@ -141,7 +141,7 @@ defmodule Delta.Connection.Processor do
 		end
 	 end
 
-	 defp format(response, body) do
+	 def format(response, body) do
 		 case response do
 			 :error -> %{
 				 action: "drs.error",
