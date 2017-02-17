@@ -108,11 +108,10 @@ defmodule Delta.Connection.Processor do
 	 end
 
 	 def handle_info({:process, msg}, state) do
-		 %{
-			 "key" => key,
-			 "action" => action,
-			 "body" => body,
-		 } = Poison.decode!(msg)
+		 parsed = Poison.decode!(msg)
+		 action = Map.get(parsed, "action")
+		 body = Map.get(parsed, "body")
+		 key = Map.get(parsed, "key")
 		 state.delta.handle_command(action, body, state.data)
 		 |> write(key, state)
 	 end
