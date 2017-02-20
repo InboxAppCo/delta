@@ -59,9 +59,21 @@ defmodule Delta.Mutation do
 	end
 
 	def inflate({path, body}) do
-		new()
-		|> Dynamic.put([:merge | path], Map.get(body, :merge) || %{})
-		|> Dynamic.put([:delete | path], Map.get(body, :delete) || %{})
+		mutation = new()
+		mutation =
+			case body.merge do
+				%{} -> mutation
+				result ->
+					mutation
+					|> Dynamic.put([:merge | path], result)
+			end
+		mutation =
+			case body.delete do
+				%{} -> mutation
+				result ->
+					mutation
+					|> Dynamic.put([:delete | path], result)
+			end
 	end
 
 	def commit(mutation, interceptors, user) do
