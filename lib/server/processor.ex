@@ -40,7 +40,15 @@ defmodule Delta.Server.Processor do
 		 version = Map.get(parsed, "version", 0)
 
 		 # Trigger handlers
-		 {action, body, data} = state.delta.handle_command({action, body, version}, state.socket, state.data)
+		 {action, body, data} =
+			try do
+				 state.delta.handle_command({action, body, version}, state.socket, state.data)
+			rescue
+				_ -> {:exception, "Fuck this!!!!", state.data}
+			catch
+ 				_ -> {:exception, "Fuck this!!!!", state.data}
+ 				_,_ -> {:exception, "Fuck this!!!!", state.data}
+			end
 		 action
 		 |> format(key, body)
 		 |> send_raw(state.socket)
@@ -52,6 +60,7 @@ defmodule Delta.Server.Processor do
 	 end
 
 	 def handle_info(msg, state) do
+		 IO.inspect(msg)
 	 	{:ok, data} = state.delta.handle_info(msg, state.socket, state.data)
 		{:noreply, %{
 			state |
@@ -62,6 +71,7 @@ defmodule Delta.Server.Processor do
 	 def format(action, key, body) do
 	 	case action do
 			 :error -> format_error(key, body)
+			 :exception -> format_exception(key, body)
 			 :reply -> format_response(key, body)
 	 	end
 	 end
@@ -70,6 +80,16 @@ defmodule Delta.Server.Processor do
  	 	%{
  			key: key,
  			action: "drs.error",
+ 			body: %{
+				message: message
+			}
+ 		}
+ 	 end
+
+ 	 def format_exception(key, message) do
+ 	 	%{
+ 			key: key,
+ 			action: "drs.exception",
  			body: %{
 				message: message
 			}
