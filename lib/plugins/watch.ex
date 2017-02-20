@@ -2,6 +2,7 @@ defmodule Delta.Plugin.Watch do
 	defmacro __using__(_opts) do
 		alias Delta.Watch
 		alias Delta.Dynamic
+		alias Delta.Server.Processor
 
 		quote do
 
@@ -17,14 +18,15 @@ defmodule Delta.Plugin.Watch do
 				Watch.unwatch(path)
 			end
 
-			def handle_info({:mutation, mutation = %{merge: merge, delete: delete}}, data) do
-				{"delta.mutation", %{
+			def handle_info({:mutation, mutation = %{merge: merge, delete: delete}}, socket, data) do
+				Processor.send_cmd(socket, "delta.mutation", %{
 					"$merge": merge,
 					"$delete": delete,
-				}, data}
+				}, 1)
+				{:ok, data}
 			end
 
-			def handle_command("delta.subscribe", body, state = %{user: user}) do
+			def handle_command({"delta.subscribe", body, _version}, socket, state = %{user: user}) do
 				["user:watch:online", user]
 				|> query_path
 				|> Map.keys
@@ -33,14 +35,14 @@ defmodule Delta.Plugin.Watch do
 				{:reply, true, state}
 			end
 
-			def handle_command("delta.watch", body, state) do
+			def handle_command({"delta.watch", body, _version}, socket, state) do
 				body
 				|> Dynamic.flatten
 				|> Enum.each(fn {path, _} -> watch(path) end)
 				{:reply, true, state}
 			end
 
-			def handle_command("delta.unwatch", body, state) do
+			def handle_command({"delta.unwatch", body, _version}, socket, state) do
 				body
 				|> Dynamic.flatten
 				|> Enum.each(fn {path, _} -> unwatch(path) end)

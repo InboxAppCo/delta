@@ -31,11 +31,11 @@ defmodule Delta.Base do
 					{:ok, %{user: "anonymous"}}
 				end
 
-				def handle_command("drs.ping", _, state) do
+				def handle_command({"drs.ping", body, _version}, socket, state) do
 					{:reply, :os.system_time(:millisecond), state}
 				end
 
-				def handle_command(action, body, data) do
+				def handle_command({action, body, _version}, socket, data) do
 					{:error, "Unknown command #{action}", data}
 				end
 

@@ -32,53 +32,71 @@ defmodule Delta.Server.Processor do
 	 end
 
 	 def handle_cast({:process, msg}, state) do
+		 # Parse message
 		 parsed = Poison.decode!(msg)
+		 key = Map.get(parsed, "key")
 		 action = Map.get(parsed, "action")
 		 body = Map.get(parsed, "body")
-		 key = Map.get(parsed, "key")
-		 state.delta.handle_command(action, body, state.data)
-		 |> write(key, state)
+		 version = Map.get(parsed, "version", 0)
+
+		 # Trigger handlers
+		 {action, body, data} = state.delta.handle_command({action, body, version}, state.socket, state.data)
+		 case action do
+			 :error -> send_error(state.socket, key, body)
+			 :reply -> send_response(state.socket, key, body)
+			 _ -> :skip
+		 end
+
+		 {:noreply, %{
+			 state |
+			 data: data
+		 }}
 	 end
 
 	 def handle_info(msg, state) do
-	 	state.delta.handle_info(msg, state.data)
-		|> write(state)
+	 	{:ok, data} = state.delta.handle_info(msg, state.socket, state.data)
+		{:noreply, %{
+			state |
+			data: data
+		}}
 	 end
 
-	 defp write(event, state), do: write(event, "", state)
+ 	 def send_error(socket, key, message) do
+		payload =
+	 	 	%{
+	 			key: key,
+	 			action: "drs.error",
+	 			body: %{
+					message: message
+				}
+	 		}
+ 		send_raw(socket, payload)
+ 	 end
 
-	 defp write({response, body, data}, key, state) do
-		 json =
-			format(response, body)
-			|> Map.put(:key, key)
-			|> Poison.encode!
-		case Web.send(state.socket, {:text, json}) do
-			:ok ->
-				{:noreply, %{
-					state |
-					data: data
-				}}
-			{:error, :closed} -> {:stop, :normal, state}
-		end
+	 def send_response(socket, key, body) do
+		payload =
+		 	%{
+				key: key,
+				action: "drs.response",
+				body: body
+			}
+		send_raw(payload, socket)
 	 end
 
-	 def format(response, body) do
-		 case response do
-			 :error -> %{
-				 action: "drs.error",
-				 body: %{
-					 message: body
-				 },
-			 }
-			 :reply -> %{
-				 action: "drs.response",
-				 body: body
-			 }
-			 _ -> %{
-				 action: response,
-				 body: body,
-			 }
-		 end
+	 def send_cmd(socket, action, body, version, key \\ '') do
+		 payload =
+			%{
+				key: key,
+				action: action,
+				body: body,
+				version: version,
+			}
+		send_raw(socket, payload)
+	 end
+
+	 def send_raw(socket, payload) do
+		 json = Poison.encode!(payload)
+		 Web.send(socket, {:text, json})
 	 end
 
  	def terminate(reason, state = %{data: data, delta: delta}) do

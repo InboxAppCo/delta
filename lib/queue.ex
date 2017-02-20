@@ -1,6 +1,5 @@
 defmodule Delta.Queue do
 	alias Delta.Mutation
-	alias Delta.Query
 	alias Delta.UUID
 
 	@day 86400000
@@ -36,7 +35,7 @@ defmodule Delta.Queue do
 			|> Stream.map(fn {key, value} -> {key, Poison.decode!(value)} end)
 		end, max_concurrency: 10, timeout: 30_000)
 		|> Stream.flat_map(fn {:ok, values} -> values end)
-		|> Enum.sort_by(fn {key, value} -> key end)
+		|> Enum.sort_by(fn {key, _value} -> key end)
 	end
 
 	def since(uuid) do

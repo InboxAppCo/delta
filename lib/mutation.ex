@@ -74,6 +74,7 @@ defmodule Delta.Mutation do
 					mutation
 					|> Dynamic.put([:delete | path], result)
 			end
+		mutation
 	end
 
 	def commit(mutation, interceptors, user) do

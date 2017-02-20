@@ -4,10 +4,10 @@ defmodule Delta.Server.Reader do
 	alias Delta.Server.Processor
 
 	def start_link(_delta, socket) do
-		GenServer.start_link(__MODULE__, [_delta, socket])
+		GenServer.start_link(__MODULE__, [socket])
 	end
 
-	def init([_delta, socket]) do
+	def init([socket]) do
 		self()
 		|> send(:read)
 		{:ok, socket}
@@ -38,19 +38,19 @@ defmodule Delta.Server.Reader do
 		:loop
 	end
 
-	defp handle_payload({:ok, {:ping, _}}, socket) do
+	defp handle_payload({:ok, {:ping, _}}, _socket) do
 		:loop
 	end
 
-	defp handle_payload({:ok, :close}, socket) do
+	defp handle_payload({:ok, :close}, _socket) do
 		:stop
 	end
 
-	defp handle_payload({:ok, body}, socket) do
+	defp handle_payload({:ok, _body}, _socket) do
 		:stop
 	end
 
-	defp handle_payload(payload, socket) do
+	defp handle_payload(payload, _socket) do
 		IO.inspect(payload)
 		:stop
 	end
