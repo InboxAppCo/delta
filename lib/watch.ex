@@ -9,15 +9,15 @@ defmodule Delta.Watch do
 		:syn.leave(name(path), self())
 	end
 
-	def notify(mutation) do
+	def notify(mutation, key) do
 		mutation
 		|> Mutation.atoms
-		|> Enum.each(&notify_atom/1)
+		|> Enum.each(&notify_atom(&1, key))
 	end
 
-	defp notify_atom(atom = {path, _body}) do
+	defp notify_atom(atom = {path, _body}, key) do
 		mutation = atom |> Mutation.inflate
-		:syn.publish(name(path), {:mutation, mutation})
+		:syn.publish(name(path), {:mutation, key, mutation})
 	end
 
 	def name(path) do

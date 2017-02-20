@@ -5,6 +5,7 @@ defmodule Delta.Plugin.Mutation do
 			alias Delta.Mutation
 			alias Delta.Watch
 			alias Delta.Queue
+			alias Delta.UUID
 			@master "delta-master"
 
 			def mutation(mut), do: mutation(mut, @master)
@@ -13,14 +14,16 @@ defmodule Delta.Plugin.Mutation do
 				interceptors = interceptors()
 				case Mutation.validate(mut, interceptors, user) do
 					nil ->
+						key = UUID.ascending()
+
 						prepared = Mutation.prepare(mut, interceptors, :intercept_write, user)
 
 						prepared
-						|> Watch.notify
+						|> Watch.notify(key)
 
 						queued =
-							prepared
-							|> Queue.write
+							read()
+							|> Queue.write(prepared, key)
 							|> Mutation.combine(prepared)
 						writes()
 						|> Enum.each(fn store -> Mutation.write(queued, store) end)
@@ -52,6 +55,20 @@ defmodule Delta.Plugin.Mutation do
 				delete = Map.get(body, "$delete", %{})
 				mutation = Mutation.new(merge, delete)
 				result = mutation(mutation, user)
+				{:reply, result, state}
+			end
+
+			def handle_command({"delta.sync", body = %{"offset" => offset}, _version}, socket, state) do
+				result =
+					read()
+					|> Queue.sync(state.user, offset)
+					|> Enum.reduce(offset, fn {key, value}, _ ->
+						"delta.mutation"
+						|> Processor.format_cmd(body, 1, key)
+						|> IO.inspect
+						|> Processor.send_raw(socket)
+						key
+					end)
 				{:reply, result, state}
 			end
 
