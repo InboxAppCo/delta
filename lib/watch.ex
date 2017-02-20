@@ -26,21 +26,21 @@ defmodule Delta.Watch do
 
 	def watch_online(user, path) do
 		user
-		|> watch_root("user:watch:online", path)
+		|> watch_root("online", path)
 	end
 
 	def watch_all(user, path) do
 		Delta.Mutation.combine(
-			watch_root(user, "user:watch:offline", path),
-			watch_root(user, "user:watch:online", path)
+			watch_root(user, "offline", path),
+			watch_root(user, "online", path)
 		)
 	end
 
 	defp watch_root(user, root, path) do
 		joined = Enum.join(path, "/")
 		Mutation.new
-		|> Mutation.merge([root, user, joined], 1)
-		|> Mutation.merge(["userWatch", user, joined], 1)
+		|> Mutation.merge(["user:watch:#{root}", user, joined], 1)
+		|> Mutation.merge(["path:watch:#{root}", joined, user], 1)
 	end
 
 	def unwatch_all(user, path) do
