@@ -19,10 +19,12 @@ defmodule Delta.Plugin.Watch do
 			end
 
 			def handle_info({:mutation, mutation = %{merge: merge, delete: delete}}, socket, data) do
-				Processor.send_cmd(socket, "delta.mutation", %{
+				"delta.mutation"
+				|> Processor.format_cmd(%{
 					"$merge": merge,
 					"$delete": delete,
 				}, 1)
+				|> Processor.send_raw(socket)
 				{:ok, data}
 			end
 

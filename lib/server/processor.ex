@@ -41,11 +41,9 @@ defmodule Delta.Server.Processor do
 
 		 # Trigger handlers
 		 {action, body, data} = state.delta.handle_command({action, body, version}, state.socket, state.data)
-		 case action do
-			 :error -> send_error(state.socket, key, body)
-			 :reply -> send_response(state.socket, key, body)
-			 _ -> :skip
-		 end
+		 action
+		 |> format(key, body)
+		 |> send_raw(state.socket)
 
 		 {:noreply, %{
 			 state |
@@ -61,40 +59,41 @@ defmodule Delta.Server.Processor do
 		}}
 	 end
 
- 	 def send_error(socket, key, message) do
-		payload =
-	 	 	%{
-	 			key: key,
-	 			action: "drs.error",
-	 			body: %{
-					message: message
-				}
-	 		}
- 		send_raw(socket, payload)
+	 def format(action, key, body) do
+	 	case action do
+			 :error -> format_error(key, body)
+			 :reply -> format_response(key, body)
+	 	end
+	 end
+
+ 	 def format_error(key, message) do
+ 	 	%{
+ 			key: key,
+ 			action: "drs.error",
+ 			body: %{
+				message: message
+			}
+ 		}
  	 end
 
-	 def send_response(socket, key, body) do
-		payload =
-		 	%{
-				key: key,
-				action: "drs.response",
-				body: body
-			}
-		send_raw(payload, socket)
+	 def format_response(key, body) do
+	 	%{
+			key: key,
+			action: "drs.response",
+			body: body
+		}
 	 end
 
-	 def send_cmd(socket, action, body, version, key \\ '') do
-		 payload =
-			%{
-				key: key,
-				action: action,
-				body: body,
-				version: version,
-			}
-		send_raw(socket, payload)
+	 def format_cmd(action, body, version, key \\ '') do
+		%{
+			key: key,
+			action: action,
+			body: body,
+			version: version,
+		}
 	 end
 
-	 def send_raw(socket, payload) do
+	 def send_raw(payload, socket) do
 		 json = Poison.encode!(payload)
 		 Web.send(socket, {:text, json})
 	 end
