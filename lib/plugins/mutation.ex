@@ -6,6 +6,7 @@ defmodule Delta.Plugin.Mutation do
 			alias Delta.Watch
 			alias Delta.Queue
 			alias Delta.UUID
+			alias Delta.Server.Processor
 			@master "delta-master"
 
 			def mutation(mut), do: mutation(mut, @master)
@@ -59,13 +60,13 @@ defmodule Delta.Plugin.Mutation do
 			end
 
 			def handle_command({"delta.sync", body = %{"offset" => offset}, _version}, socket, state) do
+				offset = "0MPOg3i0IaUE53OYV8kZ"
 				result =
 					read()
 					|> Queue.sync(state.user, offset)
 					|> Enum.reduce(offset, fn {key, value}, _ ->
 						"delta.mutation"
-						|> Processor.format_cmd(body, 1, key)
-						|> IO.inspect
+						|> Processor.format_cmd(value, 1, key)
 						|> Processor.send_raw(socket)
 						key
 					end)
