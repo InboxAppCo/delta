@@ -60,7 +60,6 @@ defmodule Delta.Plugin.Mutation do
 			end
 
 			def handle_command({"delta.sync", body = %{"offset" => offset}, _version}, socket, state) do
-				offset = "0MPOg3i0IaUE53OYV8kZ"
 				result =
 					read()
 					|> Queue.sync(state.user, offset)
