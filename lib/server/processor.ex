@@ -34,12 +34,16 @@ defmodule Delta.Server.Processor do
 
 	 def handle_cast({:process, msg}, state) do
 		 # Parse message
-		 info(msg)
 		 parsed = Poison.decode!(msg)
 		 key = Map.get(parsed, "key")
 		 action = Map.get(parsed, "action")
 		 body = Map.get(parsed, "body")
 		 version = Map.get(parsed, "version", 0)
+		 info(~s(
+Request
+action: #{action}
+body: #{inspect(body)}
+		 ))
 
 		 # Trigger handlers
 		 {action, body, data} =
@@ -51,6 +55,13 @@ defmodule Delta.Server.Processor do
  				_ -> {:exception, "Fuck this!!!!", state.data}
  				_,_ -> {:exception, "Fuck this!!!!", state.data}
 			end
+
+			info(~s(
+Response
+action: #{action}
+body: #{inspect(body)}
+			))
+
 		 action
 		 |> format(key, body)
 		 |> send_raw(state.socket)
@@ -116,7 +127,6 @@ defmodule Delta.Server.Processor do
 
 	 def send_raw(payload, socket) do
 		 json = Poison.encode!(payload)
-		 info(json)
 		 Web.send(socket, {:text, json})
 	 end
 

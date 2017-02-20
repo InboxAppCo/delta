@@ -55,8 +55,8 @@ defmodule Delta.Plugin.Mutation do
 				merge = Map.get(body, "$merge", %{})
 				delete = Map.get(body, "$delete", %{})
 				mutation = Mutation.new(merge, delete)
-				result = mutation(mutation, user)
-				{:reply, result, state}
+				mutation(mutation, user)
+				{:reply, true, state}
 			end
 
 			def handle_command({"delta.sync", body = %{"offset" => offset}, _version}, socket, state) do
