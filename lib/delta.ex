@@ -38,6 +38,9 @@ defmodule Delta.Base do
 				def handle_command(action, body, data) do
 					{:error, "Unknown command #{action}", data}
 				end
+
+				def handle_disconnect(data) do
+				end
 			end
 		end
 end
