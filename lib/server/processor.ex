@@ -1,6 +1,7 @@
 defmodule Delta.Server.Processor do
 	 use GenServer
 	 alias Socket.Web
+	 import Logger
 
 	 def start_link(delta, socket) do
 	 	GenServer.start_link(__MODULE__, [delta, socket], name: via_tuple(socket))
@@ -33,6 +34,7 @@ defmodule Delta.Server.Processor do
 
 	 def handle_cast({:process, msg}, state) do
 		 # Parse message
+		 info(msg)
 		 parsed = Poison.decode!(msg)
 		 key = Map.get(parsed, "key")
 		 action = Map.get(parsed, "action")
@@ -114,11 +116,14 @@ defmodule Delta.Server.Processor do
 
 	 def send_raw(payload, socket) do
 		 json = Poison.encode!(payload)
+		 info(json)
 		 Web.send(socket, {:text, json})
 	 end
 
- 	def terminate(reason, state = %{data: data, delta: delta}) do
+ 	def terminate(reason, state = %{data: data, delta: delta, socket: socket}) do
 		delta.handle_disconnect(data)
+		socket
+		|> Web.close
  		{reason, state}
  	end
 

@@ -56,8 +56,6 @@ defmodule Delta.Server.Reader do
 	end
 
 	def terminate(reason, socket) do
-		socket
-		|> Web.close
 		{reason, socket}
 	end
 
