@@ -64,8 +64,13 @@ defmodule Delta.Plugin.Mutation do
 					read()
 					|> Queue.sync(state.user, offset)
 					|> Enum.reduce(offset, fn {key, value}, _ ->
+						merge = Map.get(value, :merge, %{})
+						delete = Map.get(value, :delete, %{})
 						"delta.mutation"
-						|> Processor.format_cmd(value, 1, key)
+						|> Processor.format_cmd(%{
+							"$merge": merge,
+							"$delete": delete,
+						}, 1, key)
 						|> Processor.send_raw(socket)
 						key
 					end)
