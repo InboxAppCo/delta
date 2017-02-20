@@ -60,7 +60,6 @@ defmodule Delta.Server.Processor do
 	 end
 
 	 def handle_info(msg, state) do
-		 IO.inspect(msg)
 	 	{:ok, data} = state.delta.handle_info(msg, state.socket, state.data)
 		{:noreply, %{
 			state |
