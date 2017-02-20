@@ -61,18 +61,18 @@ defmodule Delta.Mutation do
 	def inflate({path, body}) do
 		mutation = new()
 		mutation =
-			case body.merge do
-				%{} -> mutation
-				result ->
+			cond do
+				body.merge == %{} -> mutation
+				true ->
 					mutation
-					|> Dynamic.put([:merge | path], result)
+					|> Dynamic.put([:merge | path], body.merge)
 			end
 		mutation =
-			case body.delete do
-				%{} -> mutation
-				result ->
+			cond do
+				body.delete == %{} -> mutation
+				true ->
 					mutation
-					|> Dynamic.put([:delete | path], result)
+					|> Dynamic.put([:delete | path], body.delete)
 			end
 		mutation
 	end
