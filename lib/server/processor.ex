@@ -50,10 +50,10 @@ body: #{inspect(body)}
 			try do
 				 state.delta.handle_command({action, body, version}, state.socket, state.data)
 			rescue
-				_ -> {:exception, "Fuck this!!!!", state.data}
+				e -> {:exception, inspect(e), state.data}
 			catch
- 				_ -> {:exception, "Fuck this!!!!", state.data}
- 				_,_ -> {:exception, "Fuck this!!!!", state.data}
+ 				e -> {:exception, inspect(e), state.data}
+ 				_, e -> {:exception, inspect(e), state.data}
 			end
 
 			info(~s(

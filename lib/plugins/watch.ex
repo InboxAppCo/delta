@@ -3,6 +3,7 @@ defmodule Delta.Plugin.Watch do
 		alias Delta.Watch
 		alias Delta.Dynamic
 		alias Delta.Server.Processor
+		alias Delta.Mutation
 
 		quote do
 
@@ -19,12 +20,16 @@ defmodule Delta.Plugin.Watch do
 			end
 
 			def handle_info({:mutation, key, mutation = %{merge: merge, delete: delete}}, socket, data) do
+				mutation
+				|> Mutation.deliver(interceptors(), data.user)
+
 				"delta.mutation"
 				|> Processor.format_cmd(%{
 					"$merge": merge,
 					"$delete": delete,
 				}, 1, key)
 				|> Processor.send_raw(socket)
+
 				{:ok, data}
 			end
 
@@ -34,6 +39,7 @@ defmodule Delta.Plugin.Watch do
 				|> Map.keys
 				|> Stream.map(&String.split(&1, "/"))
 				|> Enum.each(&watch/1)
+				watch(["user:watch:online", user])
 				{:reply, true, state}
 			end
 
@@ -57,6 +63,15 @@ end
 defmodule Delta.Interceptor.Watch do
 	use Delta.Interceptor
 	alias Delta.Mutation
+	alias Delta.Watch
+
+	def intercept_delivery(["user:watch:online", user], _user, atom, mutation) do
+		atom.merge
+		|> Map.keys
+		|> Stream.map(&String.split(&1, "/"))
+		|> Enum.each(&Watch.watch(&1))
+		:ok
+	end
 
 	def intercept_write(["user:watch:offline", user], _user, atom, mutation) do
 		mutation =
@@ -76,4 +91,5 @@ defmodule Delta.Interceptor.Watch do
 
 		{:ok, mutation}
 	end
+
 end

@@ -26,6 +26,7 @@ defmodule Delta.Plugin.Mutation do
 							read()
 							|> Queue.write(prepared, key)
 							|> Mutation.combine(prepared)
+
 						writes()
 						|> Enum.each(fn store -> Mutation.write(queued, store) end)
 
