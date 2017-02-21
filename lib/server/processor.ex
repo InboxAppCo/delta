@@ -47,14 +47,14 @@ body: #{inspect(body)}
 
 		 # Trigger handlers
 		 {action, body, data} =
-			try do
 				 state.delta.handle_command({action, body, version}, state.socket, state.data)
-			rescue
-				e -> {:exception, inspect(e), state.data}
-			catch
- 				e -> {:exception, inspect(e), state.data}
- 				_, e -> {:exception, inspect(e), state.data}
-			end
+			# try do
+			# rescue
+			# 	e -> {:exception, inspect(e), state.data}
+			# catch
+ 		# 		e -> {:exception, inspect(e), state.data}
+ 		# 		_, e -> {:exception, inspect(e), state.data}
+			# end
 
 			info(~s(
 Response
