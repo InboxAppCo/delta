@@ -77,19 +77,6 @@ defmodule Delta.Mutation do
 		mutation
 	end
 
-	def commit(mutation, interceptors, user) do
-		mutation
-		|> atoms
-		|> Stream.flat_map(&commit(mutation, interceptors, user, &1))
-		|> Stream.filter(&(&1 !== :ok))
-		|> Enum.at(0)
-	end
-
-	def commit(mutation, interceptors, user, {path, atom}) do
-		interceptors
-		|> Stream.map(&apply(&1, :intercept_commit, [path, user, atom, mutation]))
-	end
-
 	def prepare(mutation, interceptors, function, user) do
 		mutation
 		|> atoms
@@ -110,6 +97,16 @@ defmodule Delta.Mutation do
 		end)
 	end
 
+	def validate(mutation, interceptors, user) do
+		mutation
+		|> trigger_interceptors(interceptors, :validate_write, user)
+	end
+
+	def commit(mutation, interceptors, user) do
+		mutation
+		|> trigger_interceptors(interceptors, :intercept_commit, user)
+	end
+
 	def deliver(mutation, interceptors, user) do
 		mutation
 		|> trigger_interceptors(interceptors, :intercept_delivery, user)
@@ -126,19 +123,6 @@ defmodule Delta.Mutation do
 	defp trigger_interceptors(mutation, interceptors, function, user, {path, atom}) do
 		interceptors
 		|> Stream.map(&apply(&1, function, [path, user, atom, mutation]))
-	end
-
-	def validate(mutation, interceptors, user) do
-		mutation
-		|> atoms
-		|> Stream.flat_map(&validate(mutation, interceptors, user, &1))
-		|> Stream.filter(&(&1 !== :ok))
-		|> Enum.at(0)
-	end
-
-	defp validate(mutation, interceptors, user, {path, atom}) do
-		interceptors
-		|> Stream.map(&apply(&1, :validate_write, [path, user, atom, mutation]))
 	end
 
 	def apply(input, mutation) do
