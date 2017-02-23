@@ -82,38 +82,10 @@ body: #{inspect(body)}
 
 	 def format(action, key, body) do
 	 	case action do
-			 :error -> format_error(key, body)
-			 :exception -> format_exception(key, body)
-			 :reply -> format_response(key, body)
+			 :error -> format_cmd("drs.error", body, 0, key)
+			 :exception -> format_cmd("drs.exception", body, 0, key)
+			 :reply -> format_cmd("drs.response", body, 0, key)
 	 	end
-	 end
-
- 	 def format_error(key, message) do
- 	 	%{
- 			key: key,
- 			action: "drs.error",
- 			body: %{
-				message: message
-			}
- 		}
- 	 end
-
- 	 def format_exception(key, message) do
- 	 	%{
- 			key: key,
- 			action: "drs.exception",
- 			body: %{
-				message: message
-			}
- 		}
- 	 end
-
-	 def format_response(key, body) do
-	 	%{
-			key: key,
-			action: "drs.response",
-			body: body
-		}
 	 end
 
 	 def format_cmd(action, body, version, key \\ '') do

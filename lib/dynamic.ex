@@ -122,6 +122,12 @@ defmodule Delta.Dynamic do
 		end
 	end
 
+	def primitives(input) do
+		input
+		|> Stream.filter(fn {key, value} -> !is_map(value)  end)
+		|> Enum.into(%{})
+	end
+
 	def keys_to_atoms(input) do
 		for {key, val} <- input, into: %{}, do: {String.to_atom(key), val}
 	end
