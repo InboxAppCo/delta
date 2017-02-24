@@ -124,7 +124,7 @@ defmodule Delta.Dynamic do
 
 	def primitives(input) do
 		input
-		|> Stream.filter(fn {key, value} -> !is_map(value)  end)
+		|> Stream.filter(fn {_key, value} -> !is_map(value)  end)
 		|> Enum.into(%{})
 	end
 

@@ -65,7 +65,7 @@ defmodule Delta.Interceptor.Watch do
 	alias Delta.Mutation
 	alias Delta.Watch
 
-	def intercept_delivery(["user:watch:online", user], _user, atom, mutation) do
+	def intercept_delivery(["user:watch:online", _target], _user, atom, _mutation) do
 		atom.merge
 		|> Map.keys
 		|> Stream.map(&String.split(&1, "/"))

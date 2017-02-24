@@ -24,8 +24,8 @@ defmodule Delta.Base do
 		defmacro __before_compile__(_env) do
 			quote do
 				def interceptors, do: Enum.flat_map(@interceptors, &(&1))
-				def writes, do: @writes || []
-				def read, do: @read || []
+				def writes, do: @writes
+				def read, do: @read
 
 				def handle_connect(_socket) do
 					{:ok, %{user: "anonymous"}}
