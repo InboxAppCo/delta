@@ -28,14 +28,16 @@ defmodule Delta.Mixfile do
 	# Type "mix help deps" for more examples and options
 	defp deps do
 		[
-			{:syn, "~> 1.5"},
+			{:syn, "~> 1.6"},
 			{:poolboy, "~> 1.5"},
 			{:poison, "~> 2.0"},
 			{:parallel_stream, "~> 1.0.5"},
 			{:credo, "~> 0.5", only: [:dev, :test]},
 			{:socket, "~> 0.3.5"},
+			# Stores
 			{:cqex, "~> 0.2.0"},
 			{:cqerl, github: "matehat/cqerl"},
+			{:postgrex, "~> 1.0.0-rc.1"},
 		]
 	end
 end
