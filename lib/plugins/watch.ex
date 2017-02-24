@@ -70,6 +70,11 @@ defmodule Delta.Interceptor.Watch do
 		|> Map.keys
 		|> Stream.map(&String.split(&1, "/"))
 		|> Enum.each(&Watch.watch(&1))
+
+		atom.delete
+		|> Map.keys
+		|> Stream.map(&String.split(&1, "/"))
+		|> Enum.each(&Watch.unwatch(&1))
 		:ok
 	end
 
