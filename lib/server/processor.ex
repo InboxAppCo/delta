@@ -32,7 +32,7 @@ defmodule Delta.Server.Processor do
 		 |> GenServer.cast({:process, msg})
 	 end
 
-	 def handle_cast({:process, msg}, state) do
+	 def handle_cast({:process, msg}, state = %{data: data}) do
 		 # Parse message
 		 parsed = Poison.decode!(msg)
 		 key = Map.get(parsed, "key")
@@ -45,9 +45,11 @@ action: #{action}
 body: #{inspect(body)}
 		 ))
 
+		 {:ok, data} = state.delta.handle_precommand({action, body, version}, state.socket, data)
+
 		 # Trigger handlers
-		 {action, body, data} =
-				 state.delta.handle_command({action, body, version}, state.socket, state.data)
+		 {response, response_body, data} =
+				 state.delta.handle_command({action, body, version}, state.socket, data)
 			# try do
 			# rescue
 			# 	e -> {:exception, inspect(e), state.data}
@@ -56,14 +58,16 @@ body: #{inspect(body)}
  		# 		_, e -> {:exception, inspect(e), state.data}
 			# end
 
+		 {:ok, data} = state.delta.handle_postcommand({action, body, version}, {response, response_body}, state.socket, data)
+
 			info(~s(
 Response
-action: #{action}
-body: #{inspect(body)}
+action: #{response}
+body: #{inspect(response_body)}
 			))
 
-		 action
-		 |> format(key, body)
+		 response
+		 |> format(key, response_body)
 		 |> send_raw(state.socket)
 
 		 {:noreply, %{

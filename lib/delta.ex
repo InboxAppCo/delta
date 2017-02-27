@@ -36,7 +36,15 @@ defmodule Delta.Base do
 				end
 
 				def handle_command({action, body, _version}, socket, data) do
-					{:error, "Unknown command #{action}", data}
+					{:error, %{type: :invalid_command}, data}
+				end
+
+				def handle_precommand(cmd, socket, data) do
+					{:ok, data}
+				end
+
+				def handle_postcommand(cmd, response, socket, data) do
+					{:ok, data}
 				end
 
 				def handle_disconnect(data) do
