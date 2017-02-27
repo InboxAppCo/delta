@@ -2,11 +2,16 @@ defmodule Delta.Watch do
 	alias Delta.Mutation
 
 	def watch(path) do
-		:syn.join(name(path), self())
+		case path |> name |> :pg2.join(self()) do
+			:ok -> :ok
+			{:error, {:no_such_group, name}} ->
+				:pg2.create(name)
+				watch(path)
+		end
 	end
 
 	def unwatch(path) do
-		:syn.leave(name(path), self())
+		path |> name |> :pg2.leave(self())
 	end
 
 	def notify(mutation, key) do
@@ -17,7 +22,11 @@ defmodule Delta.Watch do
 
 	defp notify_atom(atom = {path, _body}, key) do
 		mutation = atom |> Mutation.inflate
-		:syn.publish(name(path), {:mutation, key, mutation})
+		msg = {:mutation, key, mutation}
+		path
+		|> name
+		|> :pg2.get_members
+		|> Enum.each(&send(&1, msg))
 	end
 
 	def name(path) do
