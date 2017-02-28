@@ -23,10 +23,10 @@ defmodule Delta.Watch do
 	defp notify_atom(atom = {path, _body}, key) do
 		mutation = atom |> Mutation.inflate
 		msg = {:mutation, key, mutation}
-		path
-		|> name
-		|> :pg2.get_members
-		|> Enum.each(&send(&1, msg))
+		case path |> name |> :pg2.get_members do
+			{:error, _} -> :skip
+			members -> members |> Enum.each(&send(&1, msg))
+		end
 	end
 
 	def name(path) do
