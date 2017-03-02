@@ -80,18 +80,22 @@ defmodule Delta.Interceptor.Watch do
 
 	def intercept_write(["user:watch:offline", user], _user, atom, mutation) do
 		mutation =
-			Map.get(atom, :merge, %{})
+			atom
+			|> Map.get(:merge, %{})
 			|> Map.keys
 			|> Enum.reduce(mutation, fn path, collect ->
 				collect
+				|> Mutation.merge(["user:watch:online", user, path], 1)
 				|> Mutation.merge(["path:watch:offline", path, user], 1)
 			end)
 		mutation =
-			Map.get(atom, :delete, %{})
+			atom
+			|> Map.get(:delete, %{})
 			|> Map.keys
 			|> Enum.reduce(mutation, fn path, collect ->
 				collect
 				|> Mutation.delete(["path:watch:offline", path, user])
+				|> Mutation.delete(["user:watch:online", user, path])
 			end)
 
 		{:ok, mutation}

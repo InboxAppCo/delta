@@ -25,11 +25,15 @@ defmodule Delta.Query do
 	end
 
 	defp convert(value) do
-		%{
-			min: Map.get(value, "$min") || Map.get(value, "min"),
-			max: Map.get(value, "$max") || Map.get(value, "max"),
-			limit: Map.get(value, "$limit") || Map.get(value, "limit", 0),
-		}
+		value
+		|> Stream.map(fn {key, value} ->
+			value =
+				value
+				|> String.trim("$")
+				|> String.to_atom
+			{key, value}
+		end)
+		|> Enum.into(%{})
 	end
 
 	def path({store, args}, path, opts \\ %{}) do
