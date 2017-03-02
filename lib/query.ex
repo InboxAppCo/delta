@@ -27,8 +27,8 @@ defmodule Delta.Query do
 	defp convert(value) do
 		value
 		|> Stream.map(fn {key, value} ->
-			value =
-				value
+			key =
+				key
 				|> String.trim("$")
 				|> String.to_atom
 			{key, value}
