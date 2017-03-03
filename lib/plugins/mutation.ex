@@ -70,17 +70,21 @@ defmodule Delta.Plugin.Mutation do
 				result =
 					read()
 					|> Queue.sync(state.user, offset)
-					|> Stream.chunk(batch)
-					|> Stream.map(fn mutations ->
-						mutations |> Enum.reduce(Mutation.new, fn item, collect -> Mutation.combine(collect, item) end)
-					end)
-					|> Enum.reduce(offset, fn {key, value}, _ ->
+					|> Stream.map(fn {key, value} ->
 						merge = Map.get(value, "merge", %{})
 						delete = Map.get(value, "delete", %{})
+						{key, Mutation.new(merge, delete)}
+					end)
+					|> Stream.chunk(batch, batch, [])
+					|> Stream.map(fn mutations ->
+						mutations |> Enum.reduce({"", Mutation.new}, fn {key, value}, {_, collect}-> {key, Mutation.combine(collect, value)} end)
+					end)
+					|> Stream.map(&IO.inspect/1)
+					|> Enum.reduce(offset, fn {key, value}, _ ->
 						"delta.mutation"
 						|> Processor.format_cmd(%{
-							"$merge": merge,
-							"$delete": delete,
+							"$merge": value.merge,
+							"$delete": value.delete,
 						}, 1, key)
 						|> Processor.send_raw(socket)
 						key
