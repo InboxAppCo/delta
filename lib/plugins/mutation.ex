@@ -79,7 +79,6 @@ defmodule Delta.Plugin.Mutation do
 					|> Stream.map(fn mutations ->
 						mutations |> Enum.reduce({"", Mutation.new}, fn {key, value}, {_, collect}-> {key, Mutation.combine(collect, value)} end)
 					end)
-					|> Stream.map(&IO.inspect/1)
 					|> Enum.reduce(offset, fn {key, value}, _ ->
 						"delta.mutation"
 						|> Processor.format_cmd(%{
