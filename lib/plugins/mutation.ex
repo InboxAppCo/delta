@@ -58,7 +58,10 @@ defmodule Delta.Plugin.Mutation do
 				mutation = Mutation.new(merge, delete)
 				case mutation(mutation, user) do
 					{:error, msg} -> {:error, msg, state}
-					mut -> {:reply, mut, state}
+					mut -> {:reply, %{
+						"$merge" => mut.merge,
+						"$delete" => mut.delete,
+					}, state}
 				end
 			end
 
