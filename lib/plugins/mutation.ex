@@ -66,9 +66,14 @@ defmodule Delta.Plugin.Mutation do
 			end
 
 			def handle_command({"delta.sync", body = %{"offset" => offset}, _version}, socket, state) do
+				batch = Map.get(body, "batch", 1)
 				result =
 					read()
 					|> Queue.sync(state.user, offset)
+					|> Stream.chunk(batch)
+					|> Stream.map(fn mutations ->
+						mutations |> Enum.reduce(Mutation.new, fn item, collect -> Mutation.combine(collect, item) end)
+					end)
 					|> Enum.reduce(offset, fn {key, value}, _ ->
 						merge = Map.get(value, "merge", %{})
 						delete = Map.get(value, "delete", %{})
