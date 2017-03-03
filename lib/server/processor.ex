@@ -67,7 +67,7 @@ body: #{inspect(response_body)}
 			))
 
 		 response
-		 |> format(key, response_body)
+		 |> format(key, response_body, version)
 		 |> send_raw(state.socket)
 
 		 {:noreply, %{
@@ -84,11 +84,11 @@ body: #{inspect(response_body)}
 		}}
 	 end
 
-	 def format(action, key, body) do
+	 def format(action, key, body, version \\ 0) do
 	 	case action do
 			 :error -> format_cmd("drs.error", body, 0, key)
 			 :exception -> format_cmd("drs.exception", body, 0, key)
-			 :reply -> format_cmd("drs.response", body, 0, key)
+			 :reply -> format_cmd("drs.response", body, version, key)
 	 	end
 	 end
 
