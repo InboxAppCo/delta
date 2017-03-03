@@ -40,11 +40,11 @@ defmodule Delta.Plugin.Query do
 			end
 
 			defp delete(mutation, path, opts) do
-				case Map.take(opts, [:min, :max]) do
-					%{} ->
+				cond do
+					Map.take(opts, [:min, :max]) == %{} ->
 						mutation
 						|> Dynamic.put([:delete | path], 1)
-					_ -> mutation
+					true -> mutation
 				end
 			end
 
