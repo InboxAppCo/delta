@@ -37,6 +37,7 @@ defmodule Delta.Mixfile do
 			{:cqex, "~> 0.2.0"},
 			{:cqerl, github: "matehat/cqerl"},
 			{:postgrex, "~> 1.0.0-rc.1"},
+			{:mariaex, "~> 0.8.1"},
 		]
 	end
 end
