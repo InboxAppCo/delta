@@ -12,7 +12,6 @@ defmodule Delta.Server.Processor do
 	end
 
 	def init([delta, socket]) do
-		Process.flag(:trap_exit, true)
 		{:ok, data} = delta.handle_connect(socket)
 		{:ok, %{
 			socket: socket,
