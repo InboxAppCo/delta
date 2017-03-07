@@ -33,7 +33,7 @@ defmodule Delta.Server.Reader do
 		|> handle_payload(socket)
 	end
 
-	defp handle_payload({:ok, {type, data}}, socket) when type == :text or type == :binary do
+	defp handle_payload({:ok, payload = {type, data}}, socket) when type == :text or type == :binary do
 		Processor.process(socket, data)
 		:loop
 	end
