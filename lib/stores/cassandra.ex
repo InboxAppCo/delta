@@ -52,6 +52,10 @@ defmodule Delta.Stores.Cassandra do
 		|> Stream.run
 	end
 
+	def query_path(_state, [], opts) do
+		%{}
+	end
+
 	def query_path(_state, path, opts) do
 		{shard, min, max} = range(path, opts)
 		query =
