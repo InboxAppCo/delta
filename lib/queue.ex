@@ -33,6 +33,7 @@ defmodule Delta.Queue do
 			store
 			|> Query.path(["user:queue", "#{user}:#{shard}"], %{min: uuid})
 			|> Stream.map(fn {key, value} -> {key, Poison.decode!(value)} end)
+			|> Stream.map(fn {key, %{"merge" => merge, "delete" => delete} } -> {key, Mutation.new(merge, delete)} end)
 		end, max_concurrency: 10, timeout: 30_000)
 		|> Stream.flat_map(fn {:ok, values} -> values end)
 		|> Enum.sort_by(fn {key, _value} -> key end)

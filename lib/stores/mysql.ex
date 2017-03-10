@@ -26,7 +26,7 @@ defmodule Delta.Stores.MySql do
 				}
 		end)
 		state
-		|> Mariaex.query!("INSERT INTO data(path, value) VALUES #{Enum.join(statement, ", ")} ON DUPLICATE KEY UPDATE value = value", params,  pool: DBConnection.Poolboy)
+		|> Mariaex.query!("REPLACE INTO data(path, value) VALUES #{Enum.join(statement, ", ")}", params,  pool: DBConnection.Poolboy)
 	end
 
 	def delete(_state, []) do
