@@ -44,6 +44,7 @@ defmodule Delta.Server.Processor do
 		Request
 		action: #{action}
 		body: #{inspect(body)}
+		state: #{inspect(data)}
 		))
 
 		{:ok, data} = state.delta.handle_precommand({action, body, version}, state.socket, data)
