@@ -48,8 +48,8 @@ defmodule Delta.Server.Processor do
 
 		{:ok, data} = state.delta.handle_precommand({action, body, version}, state.socket, data)
 
-		# Trigger handlers
-		case state.delta.handle_command({action, body, version}, state.socket, data) do
+		# Trigger handler
+		case process(state.delta, {action, body, version}, state.socket, data) do
 			{:stop, reason, data} ->
 				{:stop, reason, %{
 					state |
@@ -70,15 +70,17 @@ body: #{inspect(response_body)}
 					data: data
 				}}
 		end
+	end
 
-		# try do
-		# rescue
-		# 	e -> {:exception, inspect(e), state.data}
-		# catch
-		# 		e -> {:exception, inspect(e), state.data}
-		# 		_, e -> {:exception, inspect(e), state.data}
-		# end
-
+	defp process(delta, cmd, socket, data) do
+		try do
+			delta.handle_command(cmd, socket, data)
+		rescue
+			e -> {:exception, inspect(e), data}
+		catch
+			e -> {:exception, inspect(e), data}
+			_, e -> {:exception, inspect(e), data}
+		end
 	end
 
 	def handle_info(msg, state) do
@@ -92,7 +94,7 @@ body: #{inspect(response_body)}
 	def format(action, key, body, version \\ 0) do
 		case action do
 			:error -> format_cmd("drs.error", body, 0, key)
-			:exception -> format_cmd("drs.exception", body, 0, key)
+			:exception -> format_cmd("drs.exception", body, 0, key) |> IO.inspect
 			:reply -> format_cmd("drs.response", body, version, key)
 		end
 	end
