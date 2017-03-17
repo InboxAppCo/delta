@@ -1,16 +1,16 @@
 defmodule Delta.Watch do
 	alias Delta.Mutation
 
-	def watch(path) do
+	def watch(path, pid \\ self()) do
 		case unwatch(path) do
-			:ok -> path |> name |> :pg2.join(self())
+			:ok -> path |> name |> :pg2.join(pid)
 			{:error, {:no_such_group, name}} ->
 				:pg2.create(name)
-				watch(path)
+				watch(path, pid)
 		end
 	end
 
-	def unwatch(path) do
+	def unwatch(path, pid \\ self()) do
 		path |> name |> :pg2.leave(self())
 	end
 

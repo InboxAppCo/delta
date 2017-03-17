@@ -65,6 +65,25 @@ defmodule Delta.Plugin.Mutation do
 				end
 			end
 
+			def handle_command({"delta.broadcast.join", body, _version}, socket, state = %{user: user}) do
+				:pg2.create(:broadcast)
+				:pg2.join(:broadcast, self())
+				{:reply, true, state}
+			end
+
+			def handle_command({"delta.broadcast", body, _version}, socket, state = %{user: user}) do
+				merge = Map.get(body, "$merge", %{})
+				delete = Map.get(body, "$delete", %{})
+				mutation = Mutation.new(merge, delete)
+				:broadcast
+				|> :pg2.get_members
+				|> IO.inspect
+				|> Enum.each(&send({:mutation, UUID.ascending(), mutation}, &1))
+
+
+				{:reply, true, state}
+			end
+
 			def handle_command({"delta.sync", body = %{"offset" => offset}, _version}, socket, state) do
 				batch = Map.get(body, "batch", 1)
 				result =

@@ -35,11 +35,12 @@ defmodule Delta.Plugin.Watch do
 
 			def handle_command({"delta.subscribe", body, _version}, socket, state = %{user: user}) do
 				time = :os.system_time(:millisecond)
+				pid = self()
 				["user:watch:online", user]
 				|> query_path
 				|> Map.keys
 				|> Stream.map(&String.split(&1, "/"))
-				|> Task.async_stream(&watch/1, max_concurrency: 1000)
+				|> Task.async_stream(&Delta.Watch.watch(&1, pid), max_concurrency: 1000)
 				|> Stream.run
 				watch(["user:watch:online", user])
 				:os.system_time(:millisecond) - time
