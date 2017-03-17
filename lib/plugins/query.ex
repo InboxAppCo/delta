@@ -41,7 +41,7 @@ defmodule Delta.Plugin.Query do
 
 			defp delete(mutation, path, opts) do
 				cond do
-					Map.take(opts, [:min, :max]) == %{} ->
+					opts === %{} ->
 						mutation
 						|> Dynamic.put([:delete | path], 1)
 					true -> mutation
