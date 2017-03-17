@@ -17,6 +17,7 @@
   "postgrex": {:hex, :postgrex, "1.0.0-rc.1", "87d509aa26b01e8da0d177abce17a7f308f32500871021458665469b5aedbea2", [:mix], [{:connection, "~> 1.0", [hex: :connection, optional: false]}, {:db_connection, "~> 1.1", [hex: :db_connection, optional: false]}, {:decimal, "~> 1.0", [hex: :decimal, optional: false]}]},
   "quickrand": {:git, "https://github.com/okeuday/quickrand.git", "3eadabe05bddbffe9e3d5cf17a9384319d8756a1", [tag: "v1.4.0"]},
   "re2": {:git, "https://github.com/matehat/re2.git", "1da77be636baae639db93f9008a62b9cba00557c", []},
+  "repg2": {:hex, :repg2, "0.0.4", "048937a0ec070d13fad513e8c22a1c7a2ca4971cd87e347929ad1a2394db5d20", [:mix], []},
   "semver": {:git, "https://github.com/nebularis/semver.git", "c7d509f38298ec6594be4efdcd8a8f2322760039", [ref: "c7d509"]},
   "snappy": {:git, "https://github.com/fdmanana/snappy-erlang-nif.git", "c4cd1bb35f3a3a399737d64bd03b479817b90e75", [ref: "c4cd1bb"]},
   "socket": {:hex, :socket, "0.3.5", "6c23772e7eda60f129f36dd69a61930aab18ae9b8d74d7f767c85355cf0b585d", [:mix], []},

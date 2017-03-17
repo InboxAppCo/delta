@@ -3,15 +3,15 @@ defmodule Delta.Watch do
 
 	def watch(path) do
 		case unwatch(path) do
-			:ok -> path |> name |> :pg2.join(self())
+			:ok -> path |> name |> RePG2.join(self())
 			{:error, {:no_such_group, name}} ->
-				:pg2.create(name)
+				RePG2.create(name)
 				watch(path)
 		end
 	end
 
 	def unwatch(path) do
-		path |> name |> :pg2.leave(self())
+		path |> name |> RePG2.leave(self())
 	end
 
 	def notify(mutation, key) do
@@ -23,7 +23,7 @@ defmodule Delta.Watch do
 	defp notify_atom(atom = {path, _body}, key) do
 		mutation = atom |> Mutation.inflate
 		msg = {:mutation, key, mutation}
-		case path |> name |> :pg2.get_members do
+		case path |> name |> RePG2.get_members do
 			{:error, _} -> :skip
 			members -> members |> Enum.each(&send(&1, msg))
 		end
