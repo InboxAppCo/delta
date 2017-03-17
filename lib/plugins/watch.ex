@@ -40,7 +40,6 @@ defmodule Delta.Plugin.Watch do
 				|> Map.keys
 				|> Stream.map(&String.split(&1, "/"))
 				|> Task.async_stream(&watch/1, max_concurrency: 1000)
-				|> Stream.map(&IO.inspect/1)
 				|> Stream.run
 				watch(["user:watch:online", user])
 				:os.system_time(:millisecond) - time
