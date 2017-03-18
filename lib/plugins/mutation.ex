@@ -72,13 +72,15 @@ defmodule Delta.Plugin.Mutation do
 			end
 
 			def handle_command({"delta.broadcast", body, _version}, socket, state = %{user: user}) do
+				time = :os.system_time(:millisecond)
 				merge = Map.get(body, "$merge", %{})
 				delete = Map.get(body, "$delete", %{})
 				mutation = Mutation.new(merge, delete)
 				:broadcast
 				|> :pg2.get_members
 				|> IO.inspect
-				|> Enum.each(&send({:mutation, UUID.ascending(), mutation}, &1))
+				|> Enum.each(&send(&1, {:mutation, UUID.ascending(), mutation}))
+				IO.puts(:os.system_time(:millisecond) - time)
 
 
 				{:reply, true, state}
