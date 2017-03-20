@@ -95,7 +95,11 @@ body: #{inspect(response_body)}
 	def format(action, key, body, version \\ 0) do
 		case action do
 			:error -> format_cmd("drs.error", body, 0, key)
-			:exception -> format_cmd("drs.exception", body, 0, key) |> IO.inspect
+			:exception ->
+				format_cmd("drs.exception", body, 0, key)
+				System.stacktrace
+				|> Exception.format_stacktrace
+				|> IO.puts
 			:reply -> format_cmd("drs.response", body, version, key)
 		end
 	end
