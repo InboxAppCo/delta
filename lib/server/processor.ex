@@ -77,11 +77,22 @@ body: #{inspect(response_body)}
 		try do
 			delta.handle_command(cmd, socket, data)
 		rescue
-			e -> {:exception, inspect(e), data}
+			e ->
+				print_error(e)
+				{:exception, inspect(e), data}
 		catch
-			e -> {:exception, inspect(e), data}
-			_, e -> {:exception, inspect(e), data}
+			e ->
+				print_error(e)
+				{:exception, inspect(e), data}
+			_, e ->
+				print_error(e)
+				{:exception, inspect(e), data}
 		end
+	end
+
+	defp print_error(e) do
+		st = System.stacktrace |> Exception.format_stacktrace
+		error("#{inspect(e)}\n#{st}")
 	end
 
 	def handle_info(msg, state) do
@@ -95,11 +106,7 @@ body: #{inspect(response_body)}
 	def format(action, key, body, version \\ 0) do
 		case action do
 			:error -> format_cmd("drs.error", body, 0, key)
-			:exception ->
-				format_cmd("drs.exception", body, 0, key)
-				System.stacktrace
-				|> Exception.format_stacktrace
-				|> IO.puts
+			:exception -> format_cmd("drs.exception", body, 0, key)
 			:reply -> format_cmd("drs.response", body, version, key)
 		end
 	end
