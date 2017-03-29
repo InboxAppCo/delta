@@ -8,7 +8,7 @@ defmodule Delta.Server.Listener do
 
 	defp loop(server) do
 		case server |> Web.accept do
-			{:ok, socket = %{headers: %{"connection" => "Upgrade"} } } ->
+			{:ok, socket = %{headers: %{"Connection" => "Upgrade"} } } ->
 				case Web.accept!(socket, []) do
 					_ ->
 						Delta.Supervisor.start_child(Delta.Server.Processor, [socket])
