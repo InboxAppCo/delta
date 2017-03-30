@@ -4,7 +4,7 @@ defmodule Delta.Mixfile do
 	def project do
 		[app: :delta,
 		version: "0.1.0",
-		elixir: "~> 1.3",
+		elixir: "~> 1.4",
 		build_embedded: Mix.env == :prod,
 		start_permanent: Mix.env == :prod,
 		deps: deps()]
@@ -34,8 +34,8 @@ defmodule Delta.Mixfile do
 			{:credo, "~> 0.5", only: [:dev, :test]},
 			{:socket, "~> 0.3.5"},
 			# Stores
-			{:cqex, "~> 0.2.0"},
-			{:cqerl, github: "matehat/cqerl"},
+			{:cqex, github: "piglovesyou/cqex", override: true },
+			{:cqerl, github: "matehat/cqerl", override: true},
 			{:postgrex, "~> 1.0.0-rc.1"},
 			{:mariaex, "~> 0.8.1"},
 		]
