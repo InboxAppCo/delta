@@ -34,10 +34,10 @@ defmodule Delta.Mixfile do
 			{:credo, "~> 0.5", only: [:dev, :test]},
 			{:socket, "~> 0.3.5"},
 			# Stores
-			{:cqex, github: "piglovesyou/cqex", override: true },
-			{:cqerl, github: "SiftLogic/cqerl", override: true},
-			# {:postgrex, "~> 1.0.0-rc.1"},
-			# {:mariaex, "~> 0.8.1"},
+			{:cqex, github: "janajri/cqex", override: true },
+			{:cqerl, github: "janajri/cqerl", override: true},
+			{:postgrex, "~> 1.0.0-rc.1"},
+			{:mariaex, "~> 0.8.1"},
 		]
 	end
 end
