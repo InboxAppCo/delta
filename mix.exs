@@ -14,7 +14,9 @@ defmodule Delta.Mixfile do
 	#
 	# Type "mix help compile.app" for more information
 	def application do
-		[]
+		[
+			extra_applications: [:logger],
+		]
 	end
 
 	# Dependencies can be Hex packages:
@@ -28,14 +30,15 @@ defmodule Delta.Mixfile do
 	# Type "mix help deps" for more examples and options
 	defp deps do
 		[
+			{:distillery, "~> 1.0"},
 			{:poolboy, "~> 1.5"},
 			{:poison, "~> 2.0"},
 			{:parallel_stream, "~> 1.0.5"},
 			{:credo, "~> 0.5", only: [:dev, :test]},
 			{:socket, "~> 0.3.5"},
 			# Stores
-			{:cqex, github: "janajri/cqex", override: true },
-			{:cqerl, github: "janajri/cqerl", override: true},
+			{:cqex, "~> 0.2.0"},
+ 			{:cqerl, github: "matehat/cqerl"},
 			{:postgrex, "~> 1.0.0-rc.1"},
 			{:mariaex, "~> 0.8.1"},
 		]
