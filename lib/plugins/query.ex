@@ -48,7 +48,7 @@ defmodule Delta.Plugin.Query do
 				end
 			end
 
-			def handle_command({"delta.query", body, _version}, socket, state = %{ user: user }) do
+			def handle_command({"delta.query", body, _version}, state = %{ user: user }) do
 				%{merge: merge, delete: delete} = query(body, user)
 				{:reply, %{
 					"$merge": merge,

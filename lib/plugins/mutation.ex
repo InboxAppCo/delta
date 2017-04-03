@@ -52,7 +52,7 @@ defmodule Delta.Plugin.Mutation do
 				|> mutation(@master)
 			end
 
-			def handle_command({"delta.mutation", body, _version}, socket, state = %{user: user}) do
+			def handle_command({"delta.mutation", body, _version}, state = %{user: user}) do
 				merge = Map.get(body, "$merge", %{})
 				delete = Map.get(body, "$delete", %{})
 				mutation = Mutation.new(merge, delete)
@@ -65,13 +65,13 @@ defmodule Delta.Plugin.Mutation do
 				end
 			end
 
-			def handle_command({"delta.broadcast.join", body, _version}, socket, state = %{user: user}) do
+			def handle_command({"delta.broadcast.join", body, _version}, state = %{user: user}) do
 				:pg2.create(:broadcast)
 				:pg2.join(:broadcast, self())
 				{:reply, true, state}
 			end
 
-			def handle_command({"delta.broadcast", body, _version}, socket, state = %{user: user}) do
+			def handle_command({"delta.broadcast", body, _version}, state = %{user: user}) do
 				time = :os.system_time(:millisecond)
 				merge = Map.get(body, "$merge", %{})
 				delete = Map.get(body, "$delete", %{})
@@ -86,7 +86,7 @@ defmodule Delta.Plugin.Mutation do
 				{:reply, true, state}
 			end
 
-			def handle_command({"delta.sync", body = %{"offset" => offset}, _version}, socket, state) do
+			def handle_command({"delta.sync", body = %{"offset" => offset}, _version}, state) do
 				batch = Map.get(body, "batch", 1)
 				result =
 					read()
@@ -96,12 +96,7 @@ defmodule Delta.Plugin.Mutation do
 						mutations |> Enum.reduce({"", Mutation.new}, fn {key, value}, {_, collect}-> {key, Mutation.combine(collect, value)} end)
 					end)
 					|> Enum.reduce(offset, fn {key, value}, _ ->
-						"delta.mutation"
-						|> Processor.format_cmd(%{
-							"$merge": value.merge,
-							"$delete": value.delete,
-						}, 1, key)
-						|> Processor.send_raw(socket)
+						Delta.Server.Connection.write(key, "delta.mutation", %{ "$merge" => value.merge, "$delete" => value.delete}, 1)
 						key
 					end)
 				{:reply, result, state}

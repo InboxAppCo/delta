@@ -11,8 +11,7 @@ defmodule Delta.Server.Listener do
 			{:ok, socket } ->
 				case Web.accept!(socket, []) do
 					_ ->
-						Delta.Supervisor.start_child(Delta.Server.Processor, [socket])
-						Delta.Supervisor.start_child(Delta.Server.Reader, [socket])
+						Delta.Supervisor.start_child(Delta.Server.Connection, [socket])
 					_ -> :skip
 				end
 			_ -> :skip

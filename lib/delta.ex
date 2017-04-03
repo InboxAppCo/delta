@@ -35,15 +35,15 @@ defmodule Delta.Base do
 					{:reply, :os.system_time(:millisecond), state}
 				end
 
-				def handle_command({action, body, _version}, socket, data) do
+				def handle_command({action, body, _version}, data) do
 					{:error, %{type: :invalid_command}, data}
 				end
 
-				def handle_precommand(cmd, socket, data) do
+				def handle_precommand(cmd, data) do
 					{:ok, data}
 				end
 
-				def handle_postcommand(cmd, response, socket, data) do
+				def handle_postcommand(cmd, response, data) do
 					{:ok, data}
 				end
 

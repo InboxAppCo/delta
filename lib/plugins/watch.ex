@@ -19,21 +19,19 @@ defmodule Delta.Plugin.Watch do
 				Watch.unwatch(path)
 			end
 
-			def handle_info({:mutation, key, mutation = %{merge: merge, delete: delete}}, socket, data) do
+			def handle_info({:mutation, key, mutation = %{merge: merge, delete: delete}}, data) do
 				mutation
 				|> Mutation.deliver(interceptors(), data.user)
 
-				"delta.mutation"
-				|> Processor.format_cmd(%{
-					"$merge": merge,
-					"$delete": delete,
-				}, 1, key)
-				|> Processor.send_raw(socket)
+				Delta.Server.Connection.write(key, "delta.mutation", %{
+					"$merge" => merge,
+					"$delete" => delete,
+				}, 1)
 
 				{:ok, data}
 			end
 
-			def handle_command({"delta.subscribe", body, _version}, socket, state = %{user: user}) do
+			def handle_command({"delta.subscribe", body, _version}, state = %{user: user}) do
 				pid = self()
 				["user:watch:online", user]
 				|> query_path
@@ -45,14 +43,14 @@ defmodule Delta.Plugin.Watch do
 				{:reply, true, state}
 			end
 
-			def handle_command({"delta.watch", body, _version}, socket, state) do
+			def handle_command({"delta.watch", body, _version}, state) do
 				body
 				|> Dynamic.flatten
 				|> Enum.each(fn {path, _} -> watch(path) end)
 				{:reply, true, state}
 			end
 
-			def handle_command({"delta.unwatch", body, _version}, socket, state) do
+			def handle_command({"delta.unwatch", body, _version}, state) do
 				body
 				|> Dynamic.flatten
 				|> Enum.each(fn {path, _} -> unwatch(path) end)
