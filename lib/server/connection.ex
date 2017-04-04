@@ -8,6 +8,7 @@ defmodule Delta.Server.Connection do
 	end
 
 	def init([delta, socket]) do
+		delta.handle_connect(socket)
 		conn = self()
 		Task.start_link(fn -> read(socket, conn) end)
 		{:ok, %{
@@ -54,6 +55,7 @@ defmodule Delta.Server.Connection do
 
 	def handle_cast({:stop}, state) do
 		Web.close(state.socket)
+		state.delta.handle_disconnect(socket)
 		{:stop, :normal, state}
 	end
 
