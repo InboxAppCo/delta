@@ -53,6 +53,20 @@ defmodule Delta.Base do
 		end
 end
 
+defmodule Delta do
+	def read_store do
+
+	end
+
+	def write_stores do
+
+	end
+
+	def interceptors do
+
+	end
+end
+
 defmodule Delta.Sample do
 	use Delta.Base
 	use Delta.Plugin.Mutation

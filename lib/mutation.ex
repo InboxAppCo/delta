@@ -155,7 +155,13 @@ defmodule Delta.Mutation do
 		|> Poison.encode!
 	end
 
-	def write(mutation, {store, args}) do
+	def write(mutation) do
+		Delta.write_stores
+		|> Task.async_stream(&write(&1, mutation))
+		|> Stream.run
+	end
+
+	defp write({store, args}, mutation) do
 		args
 		|> store.init
 		|> store.delete(Dynamic.flatten(mutation.delete))
