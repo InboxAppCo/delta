@@ -16,10 +16,10 @@ defmodule Delta.Mutation do
 		Dynamic.put(input, [:delete | path], 1)
 	end
 
-	def atoms(%{merge: merge, delete: delete}) do
+	def layers(%{merge: merge, delete: delete}) do
 		Dynamic.combine(
-			atoms(merge, :merge),
-			atoms(delete, :delete)
+			layers(merge, :merge),
+			layers(delete, :delete)
 		)
 		|> Stream.map(fn {path, value} ->
 			merge = Map.get(value, :merge, %{})
@@ -32,9 +32,9 @@ defmodule Delta.Mutation do
 		|> Enum.into(%{})
 	end
 
-	defp atoms(input, type) do
+	defp layers(input, type) do
 		input
-		|> Dynamic.atoms
+		|> Dynamic.layers
 		|> Enum.reduce(%{}, fn {path, value}, collect ->
 			Dynamic.put(collect, [path, type], value)
 		end)
@@ -77,54 +77,6 @@ defmodule Delta.Mutation do
 		mutation
 	end
 
-	def prepare(mutation, interceptors, function, user) do
-		mutation
-		|> atoms
-		|> Enum.reduce(mutation, &prepare(&2, interceptors, function, user, &1))
-	end
-
-	defp prepare(mutation, interceptors, function, user, {path, atom}) do
-		Enum.reduce(interceptors, mutation, fn interceptor, collect ->
-			case apply(interceptor, function, [path, user, atom, collect]) do
-				{:prepare, result, next} ->
-					next
-					|> prepare(interceptors, function, user)
-					|> combine(result)
-				:ok -> collect
-				result = %{merge: _merge, delete: _delete} -> result
-				{:ok, result = %{merge: _merge, delete: _delete} } -> result
-			end
-		end)
-	end
-
-	def validate(mutation, interceptors, user) do
-		mutation
-		|> trigger_interceptors(interceptors, :validate_write, user)
-	end
-
-	def commit(mutation, interceptors, user) do
-		mutation
-		|> trigger_interceptors(interceptors, :intercept_commit, user)
-	end
-
-	def deliver(mutation, interceptors, user) do
-		mutation
-		|> trigger_interceptors(interceptors, :intercept_delivery, user)
-	end
-
-	defp trigger_interceptors(mutation, interceptors, function, user) do
-		mutation
-		|> atoms
-		|> Stream.flat_map(&trigger_interceptors(mutation, interceptors, function, user, &1))
-		|> Stream.filter(&(&1 !== :ok))
-		|> Enum.at(0)
-	end
-
-	defp trigger_interceptors(mutation, interceptors, function, user, {path, atom}) do
-		interceptors
-		|> Stream.map(&apply(&1, function, [path, user, atom, mutation]))
-	end
-
 	def apply(input, mutation) do
 		deleted =
 			mutation.delete
@@ -155,20 +107,22 @@ defmodule Delta.Mutation do
 		|> Poison.encode!
 	end
 
-	def write(mutation) do
-		Delta.write_stores
-		|> Task.async_stream(&write(&1, mutation))
+	def write(mutation, stores) do
+		merges = Dynamic.flatten(mutation.merge)
+		deletes = Dynamic.flatten(mutation.delete)
+		stores
+		|> Task.async_stream(&write(&1, merges, deletes))
 		|> Stream.run
 	end
 
-	defp write({store, args}, mutation) do
+	defp write({store, args}, merges, deletes) do
 		args
 		|> store.init
-		|> store.delete(Dynamic.flatten(mutation.delete))
+		|> store.delete(deletes)
 
 		args
 		|> store.init
-		|> store.merge(Dynamic.flatten(mutation.merge))
+		|> store.merge(merges)
 	end
 
 end

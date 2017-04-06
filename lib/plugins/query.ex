@@ -14,8 +14,7 @@ defmodule Delta.Plugin.Query do
 				case interceptors()
 					|> Stream.map(&(&1.resolve_query(path, user, opts)))
 					|> Stream.filter(&(&1 !== nil))
-					|> Stream.take(1)
-					|> Enum.to_list
+					|> Enum.at(0)
 				do
 					[result] -> result
 					[] -> Query.path(read(), path, opts)

@@ -103,20 +103,20 @@ defmodule Delta.Dynamic do
 	Return layers of a map
 
 	## Examples
-		iex> Dynamic.atoms(%{a: %{b: 1}})
+		iex> Dynamic.layers(%{a: %{b: 1}})
 		[
 			{[], %{a: %{b: 1}}},
 			{[:a], %{b: 1}},
 		]
 	"""
-	def atoms(input, path \\ []) do
+	def layers(input, path \\ []) do
 		case is_map(input) do
 			false -> []
 			true ->
 				[
 					{Enum.reverse(path), input} |
 					Enum.flat_map(input, fn {key, value} ->
-						atoms(value, [key | path])
+						layers(value, [key | path])
 					end)
 				]
 		end

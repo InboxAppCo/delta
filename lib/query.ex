@@ -10,15 +10,15 @@ defmodule Delta.Query do
 		Dynamic.put(input, path, map)
 	end
 
-	def atoms(query) do
+	def layers(query) do
 		query
-		|> Dynamic.atoms
-		|> Stream.filter(&atom?(&1))
+		|> Dynamic.layers
+		|> Stream.filter(&layer?(&1))
 		|> Stream.map(fn {key, value} -> {key, convert(value)} end)
 		|> Enum.map(fn {path, opts} -> {path, opts} end)
 	end
 
-	defp atom?({_, opts}) do
+	defp layer?({_, opts}) do
 		opts
 		|> Map.values
 		|> Enum.all?(&(!is_map(&1)))
@@ -45,7 +45,7 @@ defmodule Delta.Query do
 		case args
 			|> store.init
 			|> store.query_path(path, opts)
-			|> Kernel.get_in(path) do
+			|> Dynamic.get(path) do
 			nil -> %{}
 			result -> result
 		end

@@ -16,12 +16,12 @@ defmodule Delta.Watch do
 
 	def notify(mutation, key) do
 		mutation
-		|> Mutation.atoms
-		|> Enum.each(&notify_atom(&1, key))
+		|> Mutation.layers
+		|> Enum.each(&notify_layer(&1, key))
 	end
 
-	defp notify_atom(atom = {path, _body}, key) do
-		mutation = atom |> Mutation.inflate
+	defp notify_layer(layer = {path, _body}, key) do
+		mutation = layer |> Mutation.inflate
 		msg = {:mutation, key, mutation}
 		case path |> name |> :pg2.get_members do
 			{:error, _} -> :skip

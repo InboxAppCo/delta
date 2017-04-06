@@ -54,16 +54,89 @@ defmodule Delta.Base do
 end
 
 defmodule Delta do
-	def read_store do
+	@master "delta-master"
+	alias Delta.Mutation
+	alias Delta.Query
+	alias Delta.UUID
+	alias Delta.Interceptor
+	alias Delta.Watch
+	alias Delta.Queue
+	alias Delta.Dynamic
 
+	def read_store do
+		{Delta.Stores.Memory, {}}
 	end
 
 	def write_stores do
-
+		[
+			{Delta.Stores.Memory, {}}
+		]
 	end
 
 	def interceptors do
+		[]
+	end
 
+	def mutation(mut, user \\ @master) do
+		interceptors = interceptors()
+		case Interceptor.validate(interceptors, mut, user) do
+			nil ->
+				prepared = Interceptor.prepare(interceptors, mut, user)
+
+				key = UUID.ascending()
+				prepared
+				|> Watch.notify(key)
+
+				queued =
+					read_store()
+					|> Queue.write(prepared, key)
+					|> Mutation.combine(prepared)
+
+				Mutation.write(queued, write_stores())
+
+				case Interceptor.commit(interceptors, prepared, user) do
+					:ok -> prepared
+					nil -> prepared
+					error -> error
+				end
+			error -> error
+		end
+	end
+
+	def merge(path, data, user \\ @master) do
+		Mutation.new
+		|> Mutation.merge(path, data)
+		|> mutation(user)
+	end
+
+	def query(qry, user \\ @master) do
+		layers = Query.layers(qry)
+		layers
+		|> Task.async_stream(fn {path, opts} ->
+			{path, opts, query_path(path, opts, user)}
+		end, max_concurrency: layers |> Enum.count)
+		|> Stream.map(fn {:ok, value} -> value end)
+		|> Enum.reduce(Mutation.new, fn {path, opts, data}, collect ->
+			collect
+			|> Dynamic.put([:merge | path], data)
+			|> query_response(path, opts)
+		end)
+	end
+
+	defp query_response(mutation, path, opts) do
+		cond do
+			opts === %{} ->
+				mutation
+				|> Dynamic.put([:delete | path], 1)
+			true -> mutation
+		end
+	end
+
+	def query_path(path, opts \\ %{}, user \\ @master) do
+		case interceptors() |> Interceptor.resolve(path, user, opts) do
+			nil -> Query.path(read_store(), path, opts)
+			result -> result
+		end
 	end
 end
 

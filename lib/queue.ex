@@ -7,14 +7,14 @@ defmodule Delta.Queue do
 
 	def write(store, mutation, key) do
 		mutation
-		|> Mutation.atoms
-		|> Task.async_stream(&write_atom(store, &1, mutation, key), max_concurrency: 100)
+		|> Mutation.layers
+		|> Task.async_stream(&write_layer(store, &1, mutation, key), max_concurrency: 100)
 		|> Stream.map(fn {:ok, mutation} -> mutation end)
 		|> Enum.reduce(Mutation.new, fn item, collect -> Mutation.combine(collect, item) end)
 	end
 
-	def write_atom(store, atom = {path, _body}, mutation, key) do
-		json = atom |> Mutation.inflate |> Poison.encode!
+	def write_layer(store, layer = {path, _body}, mutation, key) do
+		json = layer |> Mutation.inflate |> Poison.encode!
 		shard = :os.system_time(:millisecond) |> to_day
 		joined = Enum.join(path, "/")
 		store

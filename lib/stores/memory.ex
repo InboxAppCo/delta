@@ -17,8 +17,8 @@ defmodule Delta.Stores.Memory do
 	def merge(_state, []) do
 	end
 
-	def merge(_state, atoms) do
-		atoms
+	def merge(_state, layers) do
+		layers
 		|> Enum.each(fn {path, value} ->
 			joined = Enum.join(path, @delimiter)
 			:ets.insert(@table, {joined, value})
@@ -28,8 +28,8 @@ defmodule Delta.Stores.Memory do
 	def delete(_state, []) do
 	end
 
-	def delete(_state, atoms) do
-		atoms
+	def delete(_state, layers) do
+		layers
 		|> Stream.flat_map(fn {path, _} ->
 			{min, max} = Delta.Store.range(path, @delimiter, %{min: nil, max: nil})
 			iterate_keys(min, max)
