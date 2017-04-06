@@ -73,10 +73,17 @@ defmodule Delta.Server.Connection do
 	end
 
 	defp process(cmd, delta, state) do
-		{:ok, state} = delta.handle_precommand(cmd, state)
-		{result, body, state} = delta.handle_command(cmd, state)
-		{:ok, state} = delta.handle_postcommand(cmd, {result, body}, state)
-		{result, body, state}
+		try do
+			{:ok, state} = delta.handle_precommand(cmd, state)
+			{result, body, state} = delta.handle_command(cmd, state)
+			{:ok, state} = delta.handle_postcommand(cmd, {result, body}, state)
+			{result, body, state}
+		rescue
+			e -> {:exception, inspect(e), state}
+		catch
+			e -> {:exception, inspect(e), state}
+			_, e -> {:exception, inspect(e), state}
+		end
 	end
 
 	def read(socket, pid) do
