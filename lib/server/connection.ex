@@ -54,8 +54,8 @@ defmodule Delta.Server.Connection do
 	end
 
 	def handle_cast({:stop}, state) do
-		state.delta.handle_disconnect(state.socket)
 		Web.close(state.socket)
+		state.delta.handle_disconnect(state.socket)
 		{:stop, :normal, state}
 	end
 
