@@ -79,11 +79,22 @@ defmodule Delta.Server.Connection do
 			{:ok, state} = delta.handle_postcommand(cmd, {result, body}, state)
 			{result, body, state}
 		rescue
-			e -> {:exception, inspect(e), state}
+			e ->
+				print_error(e)
+				{:exception, inspect(e), state}
 		catch
-			e -> {:exception, inspect(e), state}
-			_, e -> {:exception, inspect(e), state}
+			e ->
+				print_error(e)
+				{:exception, inspect(e), state}
+			_, e ->
+				print_error(e)
+				{:exception, inspect(e), state}
 		end
+	end
+
+	defp print_error(e) do
+		st = System.stacktrace |> Exception.format_stacktrace
+		error("#{inspect(e)}\n#{st}")
 	end
 
 	def read(socket, pid) do
