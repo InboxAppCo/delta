@@ -2,6 +2,7 @@ defmodule Delta.Server.Connection do
 	use GenServer
 	alias Socket.Web
 	alias Delta.Server.Processor
+	import Logger
 
 	def start_link(delta, socket) do
 		GenServer.start_link(__MODULE__, [delta, socket])
