@@ -16,7 +16,8 @@ defmodule Delta.Stores.Azure do
 			Dynamic.put(collect, [key, path], value)
 		end)
 		|> Enum.each(fn {{partition, row}, value} ->
-			Azex.Table.insert_merge("delta", partition, row, value)
+			IO.inspect({partition, row, value})
+			Azex.Table.insert_replace("delta", partition, row, value)
 		end)
 	end
 

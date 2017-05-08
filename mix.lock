@@ -1,4 +1,4 @@
-%{"azex": {:git, "https://github.com/ironbay/azex.git", "856c7469d3b7f9437b5dc2a997e5e8cd56f4d585", []},
+%{"azex": {:git, "https://github.com/ironbay/azex.git", "2e93dbab35c9db93ee80b7f013edfd70c0b93cc6", []},
   "bunt": {:hex, :bunt, "0.2.0", "951c6e801e8b1d2cbe58ebbd3e616a869061ddadcc4863d0a2182541acae9a38", [:mix], []},
   "certifi": {:hex, :certifi, "1.1.0", "c9b71a547016c2528a590ccfc28de786c7edb74aafa17446b84f54e04efc00ee", [:rebar3], []},
   "connection": {:hex, :connection, "1.0.4", "a1cae72211f0eef17705aaededacac3eb30e6625b04a6117c1b2db6ace7d5976", [:mix], []},
