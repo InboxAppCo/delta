@@ -57,6 +57,8 @@ defmodule Delta.Watch do
 		Mutation.new
 		|> Mutation.delete(["user:watch:online", user, joined])
 		|> Mutation.delete(["user:watch:offline", user, joined])
+		|> Mutation.delete(["path:watch:offline", joined, user])
+		|> Mutation.delete(["path:watch:online", joined, user])
 	end
 
 end

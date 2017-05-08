@@ -64,10 +64,10 @@ defmodule Delta.Sample do
 		Delta.Sample.Interceptor
 	]
 
-	@read {Delta.Stores.Cassandra, []}
+	@read {Delta.Stores.Azure, []}
 
 	@writes [
-		{Delta.Stores.Cassandra, []}
+		{Delta.Stores.Azure, []}
 	]
 
 	def sample_fact do

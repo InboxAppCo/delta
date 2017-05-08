@@ -41,6 +41,8 @@ defmodule Delta.Mixfile do
  			{:cqerl, github: "matehat/cqerl"},
 			{:postgrex, "~> 1.0.0-rc.1"},
 			{:mariaex, "~> 0.8.1"},
+
+			{:azex, github: "ironbay/azex"},
 		]
 	end
 end
