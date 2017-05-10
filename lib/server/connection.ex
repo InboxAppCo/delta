@@ -12,11 +12,16 @@ defmodule Delta.Server.Connection do
 		delta.handle_connect(socket)
 		conn = self()
 		Task.start_link(fn -> read(socket, conn) end)
+		gc()
 		{:ok, %{
 			socket: socket,
 			delta: delta,
 			data: %{}
 		}}
+	end
+
+	def gc() do
+		Process.send_after(self(), :gc, 1000 * 60)
 	end
 
 	def handle_cast({:process, json}, state) do
@@ -43,6 +48,12 @@ defmodule Delta.Server.Connection do
 			}
 			|> Poison.encode!
 		Web.send(state.socket, {:text, json})
+		{:noreply, state}
+	end
+
+	def handle_info(:gc, state) do
+		:erlang.garbage_collect(self())
+		gc()
 		{:noreply, state}
 	end
 
