@@ -12,7 +12,6 @@ defmodule Delta.Server.Connection do
 		delta.handle_connect(socket)
 		conn = self()
 		Task.start_link(fn -> read(socket, conn) end)
-		gc()
 		{:ok, %{
 			socket: socket,
 			delta: delta,
